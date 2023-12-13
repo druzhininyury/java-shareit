@@ -6,11 +6,11 @@ import ru.practicum.shareit.user.User;
 @Data
 public class ItemDto {
 
-    private long id;
+    private Long id;
     private String name;
     private String description;
-    private boolean available;
-    private User owner;
+    private Boolean available;
+    private Long ownerId;
     private Long requestId;
 
 }

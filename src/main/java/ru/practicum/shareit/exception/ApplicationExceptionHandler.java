@@ -23,9 +23,27 @@ public class ApplicationExceptionHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNoSuchUserException(NoSuchUserException e) {
         return new ErrorResponse("No such user exists.", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleNoUserIdProvidedException(NoUserIdProvidedException e) {
+        return new ErrorResponse("No user id provided.", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleNoSuchItemException(NoSuchItemException e) {
+        return new ErrorResponse("No such item exists.", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleUserNotOwnItemException(UserNotOwnItemException e) {
+        return new ErrorResponse("User doesn't own item.", e.getMessage());
     }
 
 }

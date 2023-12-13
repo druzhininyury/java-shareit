@@ -9,13 +9,22 @@ public class ItemMapper {
         itemDto.setId(item.getId());
         itemDto.setName(item.getName());
         itemDto.setDescription(item.getDescription());
-        itemDto.setAvailable(item.isAvailable());
-        itemDto.setRequestId(item.getRequest() != null ? item.getRequest().getId() : null);
+        itemDto.setAvailable(item.getAvailable());
+        itemDto.setOwnerId(item.getOwnerId());
+        itemDto.setRequestId(item.getRequestId());
         return itemDto;
     }
 
     public static Item toItem(ItemDto itemDto) {
-        throw new RuntimeException("Method hasn't been implemented yet.");
+        Item item = new Item();
+        if (itemDto.getId() != null) {
+            item.setId(itemDto.getId());
+        }
+        item.setName(itemDto.getName());
+        item.setDescription(itemDto.getDescription());
+        item.setAvailable(itemDto.getAvailable());
+        item.setRequestId(itemDto.getRequestId());
+        return item;
     }
 
 }
