@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 @RequestMapping(path = "/users")
 public class UserController {
 
-    UserService userService;
+    private UserService userService;
 
     @Autowired
     public UserController(UserService userService) {

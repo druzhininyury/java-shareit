@@ -14,8 +14,8 @@ public class UserDaoInMemoryImpl implements UserDao {
 
     private long nextId = 1;
 
-    Map<Long, User> usersById = new HashMap<>();
-    Map<String, User> usersByEmail = new HashMap<>();
+    private Map<Long, User> usersById = new HashMap<>();
+    private Map<String, User> usersByEmail = new HashMap<>();
 
     @Override
     public User addUser(User user) {

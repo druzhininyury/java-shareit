@@ -10,11 +10,9 @@ public class Item {
 
     private long id;
 
-    @NotNull
     @NotBlank
     private String name;
 
-    @NotNull
     @NotBlank
     private String description;
 
