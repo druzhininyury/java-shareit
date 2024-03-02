@@ -5,12 +5,31 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.item.exception.ItemHasNotSavedException;
+import ru.practicum.shareit.item.exception.NoSuchItemException;
+import ru.practicum.shareit.item.exception.UserNotOwnItemException;
+import ru.practicum.shareit.user.exception.NoSuchUserException;
+import ru.practicum.shareit.user.exception.UserHasNotSavedException;
 
 import javax.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 @Slf4j
 public class ApplicationExceptionHandler {
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleUserHasNotSavedException(UserHasNotSavedException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("User hasn't been saved.", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleItemHasNotSavedException(ItemHasNotSavedException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("Item hasn't been saved.", e.getMessage());
+    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
@@ -41,7 +60,7 @@ public class ApplicationExceptionHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNoSuchItemException(NoSuchItemException e) {
         log.warn(e.getMessage());
         return new ErrorResponse("No such item exists.", e.getMessage());

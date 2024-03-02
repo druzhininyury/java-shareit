@@ -15,28 +15,28 @@ public class UserController {
     private UserService userService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserServiceImpl userService) {
         this.userService = userService;
     }
 
     @PostMapping
     public UserDto addUser(@RequestBody UserDto userDto) {
-        return UserMapper.toUserDto(userService.addUser(UserMapper.toUser(userDto)));
+        return userService.addUser(userDto);
     }
 
     @PatchMapping("/{userId}")
     public UserDto updateUserData(@RequestBody UserDto userDto, @PathVariable long userId) {
-        return UserMapper.toUserDto(userService.updateUserData(UserMapper.toUser(userDto, userId)));
+        return userService.updateUserData(userDto, userId);
     }
 
     @GetMapping
     public List<UserDto> getAllUsers() {
-        return userService.getAllUsers().stream().map(UserMapper::toUserDto).collect(Collectors.toList());
+        return userService.getAllUsers();
     }
 
     @GetMapping("/{userId}")
     public UserDto getUserById(@PathVariable long userId) {
-        return UserMapper.toUserDto(userService.getUserById(userId));
+        return userService.getUserById(userId);
     }
 
     @DeleteMapping("/{userId}")
