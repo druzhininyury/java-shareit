@@ -5,7 +5,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import ru.practicum.shareit.exception.EmailAlreadyExistException;
 import ru.practicum.shareit.user.exception.NoSuchUserException;
 import ru.practicum.shareit.user.exception.UserHasNotSavedException;
 import ru.practicum.shareit.user.dto.UserDto;
