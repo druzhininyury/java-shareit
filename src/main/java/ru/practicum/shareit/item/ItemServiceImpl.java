@@ -1,10 +1,15 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.dto.BookingDtoItem;
+import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.exception.NoSuchItemException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
@@ -16,21 +21,20 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Validated
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
+@Slf4j
 public class ItemServiceImpl implements ItemService {
 
-    private ItemRepository itemRepository;
-    private UserRepository userRepository;
-
-    @Autowired
-    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository) {
-        this.itemRepository = itemRepository;
-        this.userRepository = userRepository;
-    }
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
 
     @Override
     @Transactional
@@ -70,14 +74,51 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getItemById(long itemId) {
-        return ItemMapper.toItemDto(itemRepository.findById(itemId).orElseThrow(() ->
-                new NoSuchItemException("There is no item with id = " + itemId)));
+    public ItemDto getItemById(long userId, long itemId) {
+        User owner = userRepository.findById(userId).orElseThrow(() ->
+                new NoSuchUserException("There is no user with id = " + userId));
+        Item item = itemRepository.findById(itemId).orElseThrow(() ->
+                new NoSuchItemException("There is no item with id = " + itemId));
+        ItemDto itemDto = ItemMapper.toItemDto(item);
+        if (userId != item.getOwner().getId()) {
+            return itemDto;
+        }
+        Optional<Booking> lastBooking =
+                bookingRepository.findFirstByItemIdAndEndIsBeforeAndStatusOrderByEndDesc
+                        (itemId, LocalDateTime.now(), Booking.Status.APPROVED);
+        if (lastBooking.isPresent()) {
+            itemDto.setLastBooking(BookingMapper.mapToBookingDtoItem(lastBooking.get()));
+        }
+        Optional<Booking> nextBooking =
+                bookingRepository.findFirstByItemIdAndStartIsAfterAndStatusOrderByStartAsc(
+                        itemId, LocalDateTime.now(), Booking.Status.APPROVED);
+        if (nextBooking.isPresent()) {
+            itemDto.setNextBooking(BookingMapper.mapToBookingDtoItem(nextBooking.get()));
+        }
+        return itemDto;
     }
 
     @Override
     public List<ItemDto> getAllItemsByUserId(long userId) {
-        return ItemMapper.toItemDto(itemRepository.findAllByOwnerId(userId));
+        User owner = userRepository.findById(userId).orElseThrow(() ->
+                new NoSuchUserException("There is no user with id = " + userId));
+        List<Item> items = itemRepository.findAllByOwnerId(userId);
+        List<ItemDto> dtos = ItemMapper.toItemDto(items);
+        for (ItemDto dto : dtos) {
+            Optional<Booking> lastBooking =
+                    bookingRepository.findFirstByItemIdAndEndIsBeforeAndStatusOrderByEndDesc
+                            (dto.getId(), LocalDateTime.now(), Booking.Status.APPROVED);
+            if (lastBooking.isPresent()) {
+                dto.setLastBooking(BookingMapper.mapToBookingDtoItem(lastBooking.get()));
+            }
+            Optional<Booking> nextBooking =
+                    bookingRepository.findFirstByItemIdAndStartIsAfterAndStatusOrderByStartAsc(
+                            dto.getId(), LocalDateTime.now(), Booking.Status.APPROVED);
+            if (nextBooking.isPresent()) {
+                dto.setNextBooking(BookingMapper.mapToBookingDtoItem(nextBooking.get()));
+            }
+        }
+        return dtos;
     }
 
     public List<ItemDto> getAllItemsWithText(String text) {

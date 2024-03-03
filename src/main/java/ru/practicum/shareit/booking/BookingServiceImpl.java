@@ -153,7 +153,7 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, Booking.Status.WAITING);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, Booking.Status.REJECTED);
+                bookings = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, Booking.Status.REJECTED);
                 break;
             default:
                 bookings = List.of();
