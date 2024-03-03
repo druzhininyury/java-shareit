@@ -10,11 +10,12 @@ import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDtoItem;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.item.exception.NoSuchItemException;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentMapper;
+import ru.practicum.shareit.item.exception.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.item.exception.ItemHasNotSavedException;
-import ru.practicum.shareit.item.exception.UserNotOwnItemException;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.exception.NoSuchUserException;
 import ru.practicum.shareit.item.model.Item;
@@ -35,6 +36,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     @Transactional
@@ -80,6 +82,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(itemId).orElseThrow(() ->
                 new NoSuchItemException("There is no item with id = " + itemId));
         ItemDto itemDto = ItemMapper.toItemDto(item);
+        itemDto.setComments(CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(itemId)));
         if (userId != item.getOwner().getId()) {
             return itemDto;
         }
@@ -105,6 +108,7 @@ public class ItemServiceImpl implements ItemService {
         List<Item> items = itemRepository.findAllByOwnerId(userId);
         List<ItemDto> dtos = ItemMapper.toItemDto(items);
         for (ItemDto dto : dtos) {
+            dto.setComments(CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(dto.getId())));
             Optional<Booking> lastBooking =
                     bookingRepository.findFirstByItemIdAndEndIsBeforeAndStatusOrderByEndDesc
                             (dto.getId(), LocalDateTime.now(), Booking.Status.APPROVED);
@@ -121,11 +125,30 @@ public class ItemServiceImpl implements ItemService {
         return dtos;
     }
 
+    @Override
     public List<ItemDto> getAllItemsWithText(String text) {
         if (text.isBlank()) {
             return List.of();
         }
         return ItemMapper.toItemDto(itemRepository.findAllContainingText(text));
+    }
+
+    @Transactional
+    @Override
+    public CommentDto addComment(long userId, long itemId, @Valid CommentDto commentDto) {
+        User author = userRepository.findById(userId).orElseThrow(() ->
+                new NoSuchUserException("There is no user with id = " + userId));
+        Item item = itemRepository.findById(itemId).orElseThrow(() ->
+                new NoSuchItemException("There is no item with id = " + itemId));
+        Booking booking = bookingRepository.findFirstByBookerIdAndItemIdAndStatusIsAndEndIsBeforeOrderByEndDesc(
+                userId, itemId, Booking.Status.APPROVED, LocalDateTime.now()).orElseThrow(() ->
+                new NoFinishBookingForCommentException("No booking for comment."));
+        Comment comment = CommentMapper.mapToComment(commentDto, author, item, LocalDateTime.now());
+        try {
+            return CommentMapper.mapToCommentDto(commentRepository.save(comment));
+        } catch(DataIntegrityViolationException e) {
+            throw new CommentHasNotSavedException("Comment hasn't been saved: " + comment);
+        }
     }
 
 }

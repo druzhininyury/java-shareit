@@ -6,10 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.booking.exception.*;
-import ru.practicum.shareit.item.exception.ItemHasNotSavedException;
-import ru.practicum.shareit.item.exception.ItemIsNotAvailableException;
-import ru.practicum.shareit.item.exception.NoSuchItemException;
-import ru.practicum.shareit.item.exception.UserNotOwnItemException;
+import ru.practicum.shareit.item.exception.*;
 import ru.practicum.shareit.user.exception.NoSuchUserException;
 import ru.practicum.shareit.user.exception.UserHasNotSavedException;
 
@@ -18,6 +15,13 @@ import javax.validation.ConstraintViolationException;
 @RestControllerAdvice
 @Slf4j
 public class ApplicationExceptionHandler {
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleNoFinishBookingForCommentException(NoFinishBookingForCommentException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("No finished booking for comment.", e.getMessage());
+    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -66,6 +70,13 @@ public class ApplicationExceptionHandler {
     public ErrorResponse handleUserHasNotSavedException(UserHasNotSavedException e) {
         log.warn(e.getMessage());
         return new ErrorResponse("User hasn't been saved.", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleCommentHasNotSavedException(CommentHasNotSavedException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("Comment hasn't been saved.", e.getMessage());
     }
 
     @ExceptionHandler
