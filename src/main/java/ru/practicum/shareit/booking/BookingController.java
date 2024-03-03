@@ -1,12 +1,48 @@
 package ru.practicum.shareit.booking;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.NewBookingDto;
 
-/**
- * TODO Sprint add-bookings.
- */
+import java.util.List;
+
 @RestController
-@RequestMapping(path = "/bookings")
+@RequestMapping("/bookings")
+@RequiredArgsConstructor
 public class BookingController {
+
+    private final BookingService bookingService;
+
+    @PostMapping
+    public BookingDto addBooking(@RequestBody NewBookingDto newBookingDto,
+                                 @RequestHeader("X-Sharer-User-Id") long userId) {
+        return bookingService.addBooking(newBookingDto, userId);
+    }
+
+    @PatchMapping("/{bookingId}")
+    public BookingDto approveOrRejectBooking(@PathVariable long bookingId,
+                                             @RequestParam boolean approved,
+                                             @RequestHeader("X-Sharer-User-Id") long userId) {
+        return bookingService.approveOrRejectBooking(bookingId, userId, approved);
+    }
+
+    @GetMapping("/{bookingId}")
+    public BookingDto getBookingById(@PathVariable long bookingId,
+                                     @RequestHeader("X-Sharer-User-Id") long userId) {
+        return bookingService.getBookingById(bookingId, userId);
+    }
+
+    @GetMapping
+    public List<BookingDto> getAllBookingsByCurrentUser(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                        @RequestParam(defaultValue = "ALL") String state) {
+        return bookingService.getAllBookingsByUser(userId, state);
+    }
+
+    @GetMapping("/owner")
+    public List<BookingDto> getAllBookingsAllItemsByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                          @RequestParam(defaultValue = "ALL") String state) {
+        return bookingService.getAllBookingsAllItemsByOwner(userId, state);
+    }
+
 }

@@ -5,7 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.booking.exception.*;
 import ru.practicum.shareit.item.exception.ItemHasNotSavedException;
+import ru.practicum.shareit.item.exception.ItemIsNotAvailableException;
 import ru.practicum.shareit.item.exception.NoSuchItemException;
 import ru.practicum.shareit.item.exception.UserNotOwnItemException;
 import ru.practicum.shareit.user.exception.NoSuchUserException;
@@ -18,10 +20,59 @@ import javax.validation.ConstraintViolationException;
 public class ApplicationExceptionHandler {
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleInvalidStateException(InvalidStateException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse(e.getMessage(), "");
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotBookingRelationException(NotBookingRelationException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("User has no relation to booking.", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleNoWaitingStatusException(NoWaitingStatusException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("Booking status is not waiting.", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleInvalidStartEndDatesException(InvalidStartEndDatesException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("Booking hasn't been saved.", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleItemIsNotAvailableException(ItemIsNotAvailableException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("Booking hasn't been saved.", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleBookingHasNotSavedException(BookingHasNotSavedException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("Booking hasn't been saved.", e.getMessage());
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleUserHasNotSavedException(UserHasNotSavedException e) {
         log.warn(e.getMessage());
         return new ErrorResponse("User hasn't been saved.", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNoSuchBookingException(NoSuchBookingException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("No such booking exists.", e.getMessage());
     }
 
     @ExceptionHandler
