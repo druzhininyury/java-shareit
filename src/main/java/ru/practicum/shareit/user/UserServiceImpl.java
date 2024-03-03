@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
         try {
             User user = userRepository.save(UserMapper.mapToUser(userDto));
             return UserMapper.mapToUserDto(user);
-        } catch(DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException e) {
             throw new UserHasNotSavedException("User hasn't been created: " + userDto);
         }
     }

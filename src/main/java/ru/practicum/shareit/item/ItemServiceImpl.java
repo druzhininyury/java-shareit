@@ -45,7 +45,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = ItemMapper.toItem(itemDto, owner);
         try {
             return ItemMapper.toItemDto(itemRepository.save(item));
-        } catch(DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException e) {
             throw new ItemHasNotSavedException("Item hasn't been created: " + itemDto);
         }
     }
@@ -69,7 +69,7 @@ public class ItemServiceImpl implements ItemService {
         }
         try {
             return ItemMapper.toItemDto(itemRepository.save(item));
-        } catch(DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException e) {
             throw new ItemHasNotSavedException("Item hasn't been updated: " + itemDto);
         }
     }
@@ -124,7 +124,7 @@ public class ItemServiceImpl implements ItemService {
         dtos.sort((left, right) -> {
             if (left.getId() > right.getId()) return 1;
             if (left.getId() < right.getId()) return -1;
-            return 0;});
+            return 0; });
         return dtos;
     }
 
@@ -149,7 +149,7 @@ public class ItemServiceImpl implements ItemService {
         Comment comment = CommentMapper.mapToComment(commentDto, author, item, LocalDateTime.now());
         try {
             return CommentMapper.mapToCommentDto(commentRepository.save(comment));
-        } catch(DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException e) {
             throw new CommentHasNotSavedException("Comment hasn't been saved: " + comment);
         }
     }

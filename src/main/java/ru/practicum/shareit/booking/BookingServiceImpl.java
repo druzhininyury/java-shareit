@@ -52,7 +52,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = BookingMapper.mapToBooking(newBookingDto, user, item);
         try {
             return BookingMapper.mapToBookingDto(bookingRepository.save(booking));
-        } catch(DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException e) {
             throw new BookingHasNotSavedException("Booking hasn't been created: " + newBookingDto);
         }
     }
@@ -71,7 +71,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setStatus(approved ? Booking.Status.APPROVED : Booking.Status.REJECTED);
         try {
             return BookingMapper.mapToBookingDto(bookingRepository.save(booking));
-        } catch(DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException e) {
             throw new BookingHasNotSavedException("Booking (id = " + bookingId + ") hasn't been approve/rejected");
         }
     }
