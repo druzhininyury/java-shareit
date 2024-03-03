@@ -86,8 +86,8 @@ public class ItemServiceImpl implements ItemService {
             return itemDto;
         }
         Optional<Booking> lastBooking =
-                bookingRepository.findFirstByItemIdAndEndIsBeforeAndStatusOrderByEndDesc
-                        (itemId, LocalDateTime.now(), Booking.Status.APPROVED);
+                bookingRepository.findFirstByItemIdAndStartIsBeforeAndStatusOrderByStartDesc(
+                        itemId, LocalDateTime.now(), Booking.Status.APPROVED);
         if (lastBooking.isPresent()) {
             itemDto.setLastBooking(BookingMapper.mapToBookingDtoItem(lastBooking.get()));
         }
@@ -109,8 +109,8 @@ public class ItemServiceImpl implements ItemService {
         for (ItemDto dto : dtos) {
             dto.setComments(CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(dto.getId())));
             Optional<Booking> lastBooking =
-                    bookingRepository.findFirstByItemIdAndEndIsBeforeAndStatusOrderByEndDesc
-                            (dto.getId(), LocalDateTime.now(), Booking.Status.APPROVED);
+                    bookingRepository.findFirstByItemIdAndStartIsBeforeAndStatusOrderByStartDesc(
+                            dto.getId(), LocalDateTime.now(), Booking.Status.APPROVED);
             if (lastBooking.isPresent()) {
                 dto.setLastBooking(BookingMapper.mapToBookingDtoItem(lastBooking.get()));
             }
@@ -121,6 +121,10 @@ public class ItemServiceImpl implements ItemService {
                 dto.setNextBooking(BookingMapper.mapToBookingDtoItem(nextBooking.get()));
             }
         }
+        dtos.sort((left, right) -> {
+            if (left.getId() > right.getId()) return 1;
+            if (left.getId() < right.getId()) return -1;
+            return 0;});
         return dtos;
     }
 
