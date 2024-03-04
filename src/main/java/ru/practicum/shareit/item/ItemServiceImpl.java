@@ -29,7 +29,6 @@ import java.util.Optional;
 @Validated
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-@Slf4j
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
