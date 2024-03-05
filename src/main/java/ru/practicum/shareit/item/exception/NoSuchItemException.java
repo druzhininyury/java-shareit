@@ -1,4 +1,4 @@
-package ru.practicum.shareit.exception;
+package ru.practicum.shareit.item.exception;
 
 public class NoSuchItemException extends RuntimeException {
 
