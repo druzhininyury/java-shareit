@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -23,6 +24,8 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -109,10 +112,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllItemsByUserId(long userId) {
+    public List<ItemDto> getAllItemsByUserId(long userId, @PositiveOrZero long from, @Positive long size) {
         User owner = userRepository.findById(userId).orElseThrow(() ->
                 new NoSuchUserException("There is no user with id = " + userId));
-        List<Item> items = itemRepository.findAllByOwnerId(userId);
+        PageRequest pageRequest = PageRequest.of((int) (from / size), (int) size);
+        List<Item> items = itemRepository.findAllByOwnerId(userId, pageRequest);
         List<ItemDto> dtos = ItemMapper.toItemDto(items);
         for (ItemDto dto : dtos) {
             dto.setComments(CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(dto.getId())));
@@ -137,11 +141,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllItemsWithText(String text) {
+    public List<ItemDto> getAllItemsWithText(String text, @PositiveOrZero long from, @Positive long size) {
         if (text.isBlank()) {
             return List.of();
         }
-        return ItemMapper.toItemDto(itemRepository.findAllContainingText(text));
+        PageRequest pageRequest = PageRequest.of((int) (from / size), (int) size);
+        return ItemMapper.toItemDto(itemRepository.findAllContainingText(text, pageRequest));
     }
 
     @Transactional
