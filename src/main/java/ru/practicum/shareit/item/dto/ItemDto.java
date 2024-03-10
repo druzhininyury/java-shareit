@@ -21,6 +21,8 @@ public class ItemDto {
     @NotNull(message = "Item available field can't be null.")
     private Boolean available;
 
+    private Long requestId;
+
     private BookingDtoItem lastBooking;
 
     private BookingDtoItem nextBooking;

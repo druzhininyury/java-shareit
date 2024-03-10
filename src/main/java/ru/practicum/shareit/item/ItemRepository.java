@@ -17,4 +17,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "or upper(item.description) like upper(concat('%', :text, '%')))")
     List<Item> findAllContainingText(@Param("text") String text);
 
+    List<Item> findAllByRequestIdIn(List<Long> itemRequestIds);
+
+    List<Item> findAllByRequestId(long requestId);
+
 }

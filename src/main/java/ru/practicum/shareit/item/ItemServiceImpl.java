@@ -14,6 +14,9 @@ import ru.practicum.shareit.item.exception.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
+import ru.practicum.shareit.request.ItemRequestRepository;
+import ru.practicum.shareit.request.exception.NoSuchItemRequestException;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.exception.NoSuchUserException;
 import ru.practicum.shareit.item.model.Item;
@@ -34,6 +37,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
     @Transactional
@@ -41,6 +45,12 @@ public class ItemServiceImpl implements ItemService {
         User owner = userRepository.findById(userId).orElseThrow(() ->
                 new NoSuchUserException("Can't add item, no user found with id=" + userId));
         Item item = ItemMapper.toItem(itemDto, owner);
+        if (itemDto.getRequestId() != null) {
+            ItemRequest itemRequest = itemRequestRepository.findById(itemDto.getRequestId()).orElseThrow(() ->
+                    new NoSuchItemRequestException("Can't add item, no item request with id = "
+                            + itemDto.getRequestId()));
+            item.setRequest(itemRequest);
+        }
         try {
             return ItemMapper.toItemDto(itemRepository.save(item));
         } catch (DataIntegrityViolationException e) {

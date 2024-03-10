@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.booking.exception.*;
 import ru.practicum.shareit.item.exception.*;
+import ru.practicum.shareit.request.exception.ItemRequestHasNotSavedException;
+import ru.practicum.shareit.request.exception.NoSuchItemRequestException;
 import ru.practicum.shareit.user.exception.NoSuchUserException;
 import ru.practicum.shareit.user.exception.UserHasNotSavedException;
 
@@ -56,6 +58,13 @@ public class ApplicationExceptionHandler {
     public ErrorResponse handleItemIsNotAvailableException(ItemIsNotAvailableException e) {
         log.warn(e.getMessage());
         return new ErrorResponse("Booking hasn't been saved.", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleItemRequestHasNotSavedException(ItemRequestHasNotSavedException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("ItemRequest hasn't been saved.", e.getMessage());
     }
 
     @ExceptionHandler
@@ -119,6 +128,13 @@ public class ApplicationExceptionHandler {
     public ErrorResponse handleNoUserIdProvidedException(NoUserIdProvidedException e) {
         log.warn(e.getMessage());
         return new ErrorResponse("No user id provided.", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNoSuchItemRequestException(NoSuchItemRequestException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("No such item request exists.", e.getMessage());
     }
 
     @ExceptionHandler
