@@ -1,12 +1,12 @@
 package ru.practicum.shareit.user;
 
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.transaction.annotation.Transactional;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.exception.NoSuchUserException;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -14,106 +14,103 @@ import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@Transactional
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
 
-    @Autowired
-    private final UserServiceImpl userService;
+    @Mock
+    UserRepository userRepository;
 
-    @MockBean
-    private final UserRepository userRepository;
+    @InjectMocks
+    UserServiceImpl userService;
 
     @Test
-    void addUserTest() {
-        UserDto userDtoIn = UserDto.builder()
-                .name("user")
-                .email("user@yandex.ru")
-                .build();
-        User user = User.builder()
-                .id(1L)
-                .name("user")
-                .email("user@yandex.ru")
-                .build();
-        when(userRepository.save(any()))
-                .thenReturn(user);
-        UserDto userDtoOut = userService.addUser(userDtoIn);
-        assertThat(userDtoOut.getId(), equalTo(1L));
-        assertThat(userDtoOut.getName(), equalTo("user"));
-        assertThat(userDtoOut.getEmail(), equalTo("user@yandex.ru"));
+    void addUser_whenUserValid_thenUserSaved() {
+        long userId = 1L;
+        UserDto newUserDto = UserDto.builder().name("user").email("user@yandex.ru").build();
+        User user = User.builder().id(userId).name("user").email("user@yandex.ru").build();
+        UserDto expectedUserDto = UserDto.builder().id(userId).name("user").email("user@yandex.ru").build();
+
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        UserDto actualUserDto = userService.addUser(newUserDto);
+
+        assertThat(actualUserDto, equalTo(expectedUserDto));
+        verify(userRepository, times(1)).save(any(User.class));
     }
 
     @Test
-    void updateUserDataTest() {
-        UserDto userDtoIn = UserDto.builder()
-                .name("updated")
-                .build();
-        User user = User.builder()
-                .id(1L)
-                .name("user")
-                .email("user@yandex.ru")
-                .build();
-        when(userRepository.findById(1L))
-                .thenReturn(Optional.of(user));
-        user.setName("updated");
-        when(userRepository.save(any()))
-                .thenReturn(user);
-        UserDto userDtoOut = userService.updateUserData(userDtoIn, 1L);
-        assertThat(userDtoOut.getId(), equalTo(1L));
-        assertThat(userDtoOut.getName(), equalTo("updated"));
-        assertThat(userDtoOut.getEmail(), equalTo("user@yandex.ru"));
+    void updateUserData_whenUserValid_thenUserUpdated() {
+        long userId = 1L;
+        UserDto toUpdateUserDto = UserDto.builder().name("user-updated").build();
+        User user = User.builder().id(userId).name("user").email("user@yandex.ru").build();
+        User updatedUser = User.builder().id(userId).name("user-updated").email("user@yandex.ru").build();
+        UserDto expectedUserDto = UserDto.builder().id(userId).name("user-updated").email("user@yandex.ru").build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenReturn(updatedUser);
+
+        UserDto actualUserDto = userService.updateUserData(toUpdateUserDto, userId);
+
+        assertThat(actualUserDto, equalTo(expectedUserDto));
+        verify(userRepository, times(1)).save(any(User.class));
     }
 
     @Test
-    void getAllUsersTest() {
-        User user1 = User.builder()
-                .id(1L)
-                .name("user1")
-                .email("user1@yandex.ru")
-                .build();
-        User user2 = User.builder()
-                .id(2L)
-                .name("user2")
-                .email("user2@yandex.ru")
-                .build();
-        when(userRepository.findAll())
-                .thenReturn(List.of(user1, user2));
-        List<UserDto> userDtosOut = userService.getAllUsers();
-        assertThat(userDtosOut, hasSize(2));
-        assertThat(userDtosOut.get(0).getId(), equalTo(1L));
-        assertThat(userDtosOut.get(0).getName(), equalTo("user1"));
-        assertThat(userDtosOut.get(0).getEmail(), equalTo("user1@yandex.ru"));
-        assertThat(userDtosOut.get(1).getId(), equalTo(2L));
-        assertThat(userDtosOut.get(1).getName(), equalTo("user2"));
-        assertThat(userDtosOut.get(1).getEmail(), equalTo("user2@yandex.ru"));
+    void updateUserData_whenUserInvalid_thenExceptionThrown() {
+        long userId = 2;
+        UserDto toUpdateUserDto = UserDto.builder().name("user-updated").build();
 
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchUserException.class, () -> userService.updateUserData(toUpdateUserDto, userId));
     }
 
     @Test
-    void getUserByIdTest() {
-        User user = User.builder()
-                .id(1L)
-                .name("user")
-                .email("user@yandex.ru")
-                .build();
-        when(userRepository.findById(1L))
-                .thenReturn(Optional.of(user));
-        UserDto userDtoOut = userService.getUserById(1L);
-        assertThat(userDtoOut.getId(), equalTo(1L));
-        assertThat(userDtoOut.getName(), equalTo("user"));
-        assertThat(userDtoOut.getEmail(), equalTo("user@yandex.ru"));
+    void getAllUsers_whenInputValid_thenListOfDtoReturned() {
+        long userId = 1;
+        User user = User.builder().id(userId).name("user").email("user@yandex.ru").build();
+        UserDto expectedUserDto = UserDto.builder().id(userId).name("user").email("user@yandex.ru").build();
 
+        when(userRepository.findAll()).thenReturn(List.of(user));
+
+        List<UserDto> actualUserDto = userService.getAllUsers();
+
+        assertThat(actualUserDto, equalTo(List.of(expectedUserDto)));
     }
 
     @Test
-    void deleteUserByIdTest() {
-        userService.deleteUserById(1L);
-        verify(userRepository, times(1)).deleteById(1L);
+    void getUserById_whenInputValid_thenDtoReturned() {
+        long userId = 1;
+        User user = User.builder().id(userId).name("user").email("user@yandex.ru").build();
+        UserDto expectedUserDto = UserDto.builder().id(userId).name("user").email("user@yandex.ru").build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        UserDto actualUserDto = userService.getUserById(userId);
+
+        assertThat(actualUserDto, equalTo(expectedUserDto));
+    }
+
+    @Test
+    void getUserById_whenUserInvalid_thenExceptionThrown() {
+        long userId = 2;
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchUserException.class, () -> userService.getUserById(userId));
+    }
+
+    @Test
+    void deleteUserById_whenInvoked_thenUserDeleted() {
+        long userId = 1;
+
+        userService.deleteUserById(userId);
+
+        verify(userRepository, times(1)).deleteById(userId);
     }
 
 }
