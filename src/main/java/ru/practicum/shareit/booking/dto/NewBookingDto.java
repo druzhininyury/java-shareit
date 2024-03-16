@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class NewBookingDto {
 
     @NotNull(message = "No item id was provided for new booking.")
-    private long itemId;
+    private Long itemId;
 
     @NotNull(message = "No start date was provided for new booking.")
     @FutureOrPresent
