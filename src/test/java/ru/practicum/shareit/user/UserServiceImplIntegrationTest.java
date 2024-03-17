@@ -30,7 +30,7 @@ public class UserServiceImplIntegrationTest {
     private final UserRepository userRepository;
 
     private User user1;
-    
+
     @BeforeEach
     void fillDataBase() {
         user1 = userRepository.save(User.builder().name("user1").email("user1@yandex.ru").build());
