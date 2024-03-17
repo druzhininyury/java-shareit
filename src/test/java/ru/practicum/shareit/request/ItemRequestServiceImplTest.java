@@ -5,11 +5,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.exception.ItemRequestHasNotSavedException;
 import ru.practicum.shareit.request.exception.NoSuchItemRequestException;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserRepository;
@@ -67,6 +69,35 @@ public class ItemRequestServiceImplTest {
 
         assertThat(actualItemRequestDto, equalTo(expectedItemRequestDto));
         verify(itemRequestRepository, times(1)).save(any(ItemRequest.class));
+    }
+
+    @Test
+    void addItemRequest_whenDatabaseError_thenExceptionThrown() {
+        long requesterId = 2L;
+        ItemRequestDto newItemRequestDto = ItemRequestDto.builder()
+                .description("description")
+                .requester(requesterId)
+                .build();
+        User requester = User.builder().id(requesterId).name("requester").email("requester@yandex.ru").build();
+        ItemRequest itemRequest = ItemRequest.builder()
+                .id(1L)
+                .description("description")
+                .requester(requester)
+                .created(LocalDateTime.now()).build();
+        ItemRequestDto expectedItemRequestDto = ItemRequestDto.builder()
+                .id(1L)
+                .description("description")
+                .requester(requesterId)
+                .items(List.of())
+                .created(itemRequest.getCreated())
+                .build();
+
+        when(userRepository.findById(requesterId)).thenReturn(Optional.of(requester));
+        when(itemRequestRepository.save(any(ItemRequest.class)))
+                .thenThrow(new DataIntegrityViolationException("Database error."));
+
+        assertThrows(ItemRequestHasNotSavedException.class,
+                () -> itemRequestService.addItemRequest(requesterId, newItemRequestDto));
     }
 
     @Test

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingDto;
@@ -86,6 +87,50 @@ public class BookingServiceImplTest {
 
         assertThat(actualBookingDto, equalTo(expectedBookingDto));
         verify(bookingRepository, times(1)).save(any(Booking.class));
+    }
+
+    @Test
+    void addBooking_whenDatabaseError_thenExceptionThrown() {
+        long ownerId = 1L;
+        long bookerId = 2L;
+        long itemId = 1L;
+        long bookingId = 1L;
+        NewBookingDto newBookingDto = NewBookingDto.builder()
+                .itemId(itemId)
+                .start(LocalDateTime.now().plusDays(1))
+                .end(LocalDateTime.now().plusDays(2))
+                .build();
+        User owner = User.builder().id(ownerId).name("user1").email("user1@yandex.ru").build();
+        User booker = User.builder().id(bookerId).name("user2").email("user2@yandex.ru").build();
+        Item item = Item.builder()
+                .id(itemId)
+                .name("item")
+                .description("description")
+                .available(true)
+                .owner(owner).build();
+        Booking booking = Booking.builder()
+                .id(bookingId)
+                .start(newBookingDto.getStart())
+                .end(newBookingDto.getEnd())
+                .item(item)
+                .booker(booker)
+                .status(Booking.Status.WAITING).build();
+        BookingDto expectedBookingDto = BookingDto.builder()
+                .id(bookingId)
+                .start(newBookingDto.getStart())
+                .end(newBookingDto.getEnd())
+                .status(Booking.Status.WAITING)
+                .item(ItemDtoIdName.builder().id(itemId).name("item").build())
+                .booker(UserDtoId.builder().id(bookerId).build())
+                .build();
+
+        when(userRepository.findById(bookerId)).thenReturn(Optional.of(booker));
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(bookingRepository.save(any(Booking.class)))
+                .thenThrow(new DataIntegrityViolationException("Database error."));
+
+        assertThrows(BookingHasNotSavedException.class,
+                () -> bookingService.addBooking(newBookingDto, bookerId));
     }
 
     @Test

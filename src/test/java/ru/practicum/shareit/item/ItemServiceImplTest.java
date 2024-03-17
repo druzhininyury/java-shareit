@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingMapper;
@@ -13,9 +14,7 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.item.exception.NoFinishBookingForCommentException;
-import ru.practicum.shareit.item.exception.NoSuchItemException;
-import ru.practicum.shareit.item.exception.UserNotOwnItemException;
+import ru.practicum.shareit.item.exception.*;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequestRepository;
@@ -79,6 +78,34 @@ public class ItemServiceImplTest {
 
         assertThat(actualItemDto, equalTo(expectedItemDto));
         verify(itemRepository, times(1)).save(any(Item.class));
+    }
+
+    @Test
+    void addItem_whenDatabaseError_thenExceptionThrown() {
+        long userId = 1L;
+        ItemDto newItemDto = ItemDto.builder()
+                .name("item")
+                .description("description")
+                .available(true)
+                .build();
+        ItemDto expectedItemDto = ItemDto.builder()
+                .id(1L)
+                .name("item")
+                .description("description")
+                .available(true)
+                .build();
+        User user = User.builder()
+                .id(userId)
+                .name("user")
+                .email("user@yandex.ru")
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(itemRepository.save(any(Item.class)))
+                .thenThrow(new DataIntegrityViolationException("Database error."));
+
+        assertThrows(ItemHasNotSavedException.class,
+                () -> itemService.addItem(newItemDto, userId));
     }
 
     @Test
@@ -473,6 +500,65 @@ public class ItemServiceImplTest {
 
         assertThat(actualCommentDto, equalTo(expectedCommentDto));
         verify(commentRepository, times(1)).save(any(Comment.class));
+    }
+
+    @Test
+    void addComment_whenDatabaseError_thenExceptionThrown() {
+        long authorId = 2;
+        long itemId = 1;
+        long commentId = 1;
+        long bookingId = 1;
+        User author = User.builder()
+                .id(authorId)
+                .name("author")
+                .email("author@yandex.ru")
+                .build();
+        Item item = Item.builder()
+                .id(itemId)
+                .name("item")
+                .description("description")
+                .available(true)
+                .owner(User.builder()
+                        .id(1L)
+                        .name("owner")
+                        .email("owner@yandex.ru")
+                        .build())
+                .build();
+        Booking finishedBooking = Booking.builder()
+                .id(bookingId)
+                .start(LocalDateTime.of(2024, 03, 01, 12, 0))
+                .end(LocalDateTime.of(2024, 03, 02, 12, 0))
+                .item(item)
+                .booker(author)
+                .status(Booking.Status.APPROVED)
+                .build();
+        CommentDto newCommentDto = CommentDto.builder()
+                .text("comment")
+                .build();
+        CommentDto expectedCommentDto = CommentDto.builder()
+                .id(commentId)
+                .text("comment")
+                .authorName("author")
+                .created(LocalDateTime.of(2024, 03, 03, 12, 0))
+                .build();
+        Comment savedComment = Comment.builder()
+                .id(commentId)
+                .text("comment")
+                .item(item)
+                .author(author)
+                .created(LocalDateTime.of(2024, 03, 03, 12, 0))
+                .build();
+
+        when(userRepository.findById(authorId)).thenReturn(Optional.of(author));
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(bookingRepository.findFirstByBookerIdAndItemIdAndStatusIsAndEndIsBeforeOrderByEndDesc(
+                eq(authorId), eq(itemId), eq(Booking.Status.APPROVED), any(LocalDateTime.class)))
+                .thenReturn(Optional.of(finishedBooking));
+        when(commentRepository.save(any(Comment.class)))
+                .thenThrow(new DataIntegrityViolationException("Database error"));
+
+        assertThrows(CommentHasNotSavedException.class,
+                () -> itemService.addComment(authorId, itemId, newCommentDto));
     }
 
     @Test

@@ -5,8 +5,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.exception.NoSuchUserException;
+import ru.practicum.shareit.user.exception.UserHasNotSavedException;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -40,6 +42,19 @@ public class UserServiceImplTest {
 
         assertThat(actualUserDto, equalTo(expectedUserDto));
         verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    void addUser_whenDatabaseError_thenExceptionThrown() {
+        long userId = 1L;
+        UserDto newUserDto = UserDto.builder().name("user").email("user@yandex.ru").build();
+        User user = User.builder().id(userId).name("user").email("user@yandex.ru").build();
+        UserDto expectedUserDto = UserDto.builder().id(userId).name("user").email("user@yandex.ru").build();
+
+        when(userRepository.save(any(User.class)))
+                .thenThrow(new DataIntegrityViolationException("Database error."));
+
+        assertThrows(UserHasNotSavedException.class, () -> userService.addUser(newUserDto));
     }
 
     @Test
