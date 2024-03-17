@@ -60,10 +60,10 @@ public class UserServiceImplTest {
     @Test
     void updateUserData_whenUserValid_thenUserUpdated() {
         long userId = 1L;
-        UserDto toUpdateUserDto = UserDto.builder().name("user-updated").build();
+        UserDto toUpdateUserDto = UserDto.builder().name("user-updated").email("updated@yandex.ru").build();
         User user = User.builder().id(userId).name("user").email("user@yandex.ru").build();
-        User updatedUser = User.builder().id(userId).name("user-updated").email("user@yandex.ru").build();
-        UserDto expectedUserDto = UserDto.builder().id(userId).name("user-updated").email("user@yandex.ru").build();
+        User updatedUser = User.builder().id(userId).name("user-updated").email("updated@yandex.ru").build();
+        UserDto expectedUserDto = UserDto.builder().id(userId).name("user-updated").email("updated@yandex.ru").build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(updatedUser);
@@ -72,6 +72,20 @@ public class UserServiceImplTest {
 
         assertThat(actualUserDto, equalTo(expectedUserDto));
         verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    void updateUserData_whenDatabaseError_thenExceptionThrown() {
+        long userId = 1L;
+        UserDto toUpdateUserDto = UserDto.builder().name("user-updated").build();
+        User user = User.builder().id(userId).name("user").email("user@yandex.ru").build();
+        User updatedUser = User.builder().id(userId).name("user-updated").email("user@yandex.ru").build();
+        UserDto expectedUserDto = UserDto.builder().id(userId).name("user-updated").email("user@yandex.ru").build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenThrow(new DataIntegrityViolationException("Database error."));
+
+        assertThrows(UserHasNotSavedException.class, () -> userService.updateUserData(toUpdateUserDto, userId));
     }
 
     @Test

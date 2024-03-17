@@ -275,6 +275,51 @@ public class BookingServiceImplTest {
     }
 
     @Test
+    void approveOrRejectBooking_whenDataBaseError_thenExceptionThrown() {
+        long ownerId = 1L;
+        long bookerId = 2L;
+        long itemId = 1L;
+        long bookingId = 1L;
+        User owner = User.builder().id(ownerId).name("user1").email("user1@yandex.ru").build();
+        User booker = User.builder().id(bookerId).name("user2").email("user2@yandex.ru").build();
+        Item item = Item.builder()
+                .id(itemId)
+                .name("item")
+                .description("description")
+                .available(true)
+                .owner(owner).build();
+        Booking booking = Booking.builder()
+                .id(bookingId)
+                .start(LocalDateTime.now().plusDays(1))
+                .end(LocalDateTime.now().plusDays(2))
+                .item(item)
+                .booker(booker)
+                .status(Booking.Status.WAITING).build();
+        Booking bookingUpdated = Booking.builder()
+                .id(bookingId)
+                .start(booking.getStart())
+                .end(booking.getEnd())
+                .item(item)
+                .booker(booker)
+                .status(Booking.Status.APPROVED).build();
+        BookingDto expectedBookingDto = BookingDto.builder()
+                .id(bookingId)
+                .start(booking.getStart())
+                .end(booking.getEnd())
+                .status(Booking.Status.APPROVED)
+                .item(ItemDtoIdName.builder().id(itemId).name("item").build())
+                .booker(UserDtoId.builder().id(bookerId).build())
+                .build();
+
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+        when(bookingRepository.save(any(Booking.class)))
+                .thenThrow(new DataIntegrityViolationException("Database error."));
+
+        assertThrows(BookingHasNotSavedException.class,
+                () -> bookingService.approveOrRejectBooking(bookingId, ownerId, true));
+    }
+
+    @Test
     void approveOrRejectBooking_whenBookingInvalid_thenExceptionThrown() {
         long ownerId = 1L;
         long bookingId = 1L;

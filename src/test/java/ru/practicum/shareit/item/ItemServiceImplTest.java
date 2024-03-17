@@ -233,6 +233,47 @@ public class ItemServiceImplTest {
     }
 
     @Test
+    void updateItemData_whenDatabaseError_thenExceptionThrown() {
+        long userId = 1L;
+        long itemId = 1L;
+        ItemDto itemDtoToUpdate = ItemDto.builder()
+                .name("item-updated")
+                .description("description-updated")
+                .available(false)
+                .build();
+        ItemDto expectedItemDto = ItemDto.builder()
+                .id(itemId)
+                .name("item-updated")
+                .description("description-updated")
+                .available(false)
+                .build();
+        User user = User.builder()
+                .id(userId)
+                .name("user")
+                .email("user@yandex.ru")
+                .build();
+        Item getItem = Item.builder()
+                .id(itemId)
+                .name("item")
+                .description("description")
+                .available(true)
+                .owner(user)
+                .build();
+        Item updatedItem = Item.builder()
+                .id(itemId)
+                .name("item-updated")
+                .description("description-updated")
+                .available(false)
+                .owner(user)
+                .build();
+
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(getItem));
+        when(itemRepository.save(any(Item.class))).thenThrow(new DataIntegrityViolationException("Database error."));
+
+        assertThrows(ItemHasNotSavedException.class, () -> itemService.updateItemData(itemDtoToUpdate, itemId, userId));
+    }
+
+    @Test
     void updateItemData_whenItemIdInvalid_thenExceptionThrown() {
         long itemId = 1;
         long userId = 1;
@@ -341,6 +382,54 @@ public class ItemServiceImplTest {
     }
 
     @Test
+    void getItemById_whenUserNotOwner_thenReturnItemDto() {
+        long userId = 3;
+        long ownerId = 1;
+        long commentatorId = 2;
+        long itemId = 1;
+        long commentId = 1;
+        User owner = User.builder()
+                .id(ownerId)
+                .name("user")
+                .email("user@yandex.ru")
+                .build();
+        User commentator = User.builder()
+                .id(commentatorId)
+                .name("commentator")
+                .email("commentator@yandex.ru")
+                .build();
+        Item item = Item.builder()
+                .id(itemId)
+                .name("item")
+                .description("description")
+                .available(true)
+                .owner(owner)
+                .build();
+        Comment comment = Comment.builder()
+                .id(commentId)
+                .text("comment")
+                .item(item)
+                .author(commentator)
+                .created(LocalDateTime.of(2024, 03, 01, 12, 0))
+                .build();
+        ItemDto expectedItemDto = ItemDto.builder()
+                .id(itemId)
+                .name("item")
+                .description("description")
+                .available(true)
+                .comments(List.of(CommentMapper.mapToCommentDto(comment)))
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(commentRepository.findAllByItemId(itemId)).thenReturn(List.of(comment));
+
+        ItemDto actualItemDto = itemService.getItemById(userId, itemId);
+
+        assertThat(actualItemDto, equalTo(expectedItemDto));
+    }
+
+    @Test
     void getItemById_whenUserIdInvalid_thenExceptionThrown() {
         long userId = 1L;
         long itemId = 1L;
@@ -440,6 +529,17 @@ public class ItemServiceImplTest {
         List<ItemDto> actualList = itemService.getAllItemsWithText(searchString, from, size);
 
         assertThat(actualList, equalTo(List.of(expectedItemDto)));
+    }
+
+    @Test
+    void getAllItemsWithText_whenTextBlank_thenReturnEmptyList() {
+        long from = 0;
+        long size = 10;
+        String searchString = "";
+
+        List<ItemDto> actualList = itemService.getAllItemsWithText(searchString, from, size);
+
+        assertThat(actualList, equalTo(List.of()));
     }
 
     @Test

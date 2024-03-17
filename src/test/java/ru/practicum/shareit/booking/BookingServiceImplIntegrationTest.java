@@ -189,7 +189,7 @@ public class BookingServiceImplIntegrationTest {
     }
 
     @Test
-    void getAllBookingsByUser_whenInputValid_thenListOfDtoReturned() {
+    void getAllBookingsByUser_whenStateAll_thenListOfDtoReturned() {
         String state = "ALL";
         long from = 0;
         long size = 10;
@@ -198,6 +198,117 @@ public class BookingServiceImplIntegrationTest {
                 .start(booking1.getStart())
                 .end(booking1.getEnd())
                 .status(booking1.getStatus())
+                .item(ItemDtoIdName.builder().id(item.getId()).name(item.getName()).build())
+                .booker(UserDtoId.builder().id(user2.getId()).build())
+                .build();
+
+        List<BookingDto> actualList = bookingService.getAllBookingsByUser(user2.getId(), state, from, size);
+
+        assertThat(actualList, equalTo(List.of(expectedBookingDto)));
+    }
+
+    @Test
+    void getAllBookingsByUser_whenStatePast_thenListOfDtoReturned() {
+        String state = "PAST";
+        long from = 0;
+        long size = 10;
+        BookingDto expectedBookingDto = BookingDto.builder()
+                .id(booking1.getId())
+                .start(booking1.getStart())
+                .end(booking1.getEnd())
+                .status(booking1.getStatus())
+                .item(ItemDtoIdName.builder().id(item.getId()).name(item.getName()).build())
+                .booker(UserDtoId.builder().id(user2.getId()).build())
+                .build();
+
+        List<BookingDto> actualList = bookingService.getAllBookingsByUser(user2.getId(), state, from, size);
+
+        assertThat(actualList, equalTo(List.of(expectedBookingDto)));
+    }
+
+    @Test
+    void getAllBookingsByUser_whenStateFuture_thenListOfDtoReturned() {
+        String state = "FUTURE";
+        long from = 0;
+        long size = 10;
+        Booking booking = bookingRepository.save(Booking.builder()
+                .start(LocalDateTime.now().plusDays(1))
+                .end(LocalDateTime.now().plusDays(2))
+                .item(item).booker(user2).status(Booking.Status.WAITING).build());
+        BookingDto expectedBookingDto = BookingDto.builder()
+                .id(booking.getId())
+                .start(booking.getStart())
+                .end(booking.getEnd())
+                .status(booking.getStatus())
+                .item(ItemDtoIdName.builder().id(item.getId()).name(item.getName()).build())
+                .booker(UserDtoId.builder().id(user2.getId()).build())
+                .build();
+
+        List<BookingDto> actualList = bookingService.getAllBookingsByUser(user2.getId(), state, from, size);
+
+        assertThat(actualList, equalTo(List.of(expectedBookingDto)));
+    }
+
+    @Test
+    void getAllBookingsByUser_whenStateCurrent_thenListOfDtoReturned() {
+        String state = "CURRENT";
+        long from = 0;
+        long size = 10;
+        Booking booking = bookingRepository.save(Booking.builder()
+                .start(LocalDateTime.now().minusDays(1))
+                .end(LocalDateTime.now().plusDays(1))
+                .item(item).booker(user2).status(Booking.Status.APPROVED).build());
+        BookingDto expectedBookingDto = BookingDto.builder()
+                .id(booking.getId())
+                .start(booking.getStart())
+                .end(booking.getEnd())
+                .status(booking.getStatus())
+                .item(ItemDtoIdName.builder().id(item.getId()).name(item.getName()).build())
+                .booker(UserDtoId.builder().id(user2.getId()).build())
+                .build();
+
+        List<BookingDto> actualList = bookingService.getAllBookingsByUser(user2.getId(), state, from, size);
+
+        assertThat(actualList, equalTo(List.of(expectedBookingDto)));
+    }
+
+    @Test
+    void getAllBookingsByUser_whenStateWaiting_thenListOfDtoReturned() {
+        String state = "WAITING";
+        long from = 0;
+        long size = 10;
+        Booking booking = bookingRepository.save(Booking.builder()
+                .start(LocalDateTime.now().minusDays(2))
+                .end(LocalDateTime.now().minusDays(1))
+                .item(item).booker(user2).status(Booking.Status.WAITING).build());
+        BookingDto expectedBookingDto = BookingDto.builder()
+                .id(booking.getId())
+                .start(booking.getStart())
+                .end(booking.getEnd())
+                .status(booking.getStatus())
+                .item(ItemDtoIdName.builder().id(item.getId()).name(item.getName()).build())
+                .booker(UserDtoId.builder().id(user2.getId()).build())
+                .build();
+
+        List<BookingDto> actualList = bookingService.getAllBookingsByUser(user2.getId(), state, from, size);
+
+        assertThat(actualList, equalTo(List.of(expectedBookingDto)));
+    }
+
+    @Test
+    void getAllBookingsByUser_whenStateRejected_thenListOfDtoReturned() {
+        String state = "REJECTED";
+        long from = 0;
+        long size = 10;
+        Booking booking = bookingRepository.save(Booking.builder()
+                .start(LocalDateTime.now().minusDays(2))
+                .end(LocalDateTime.now().minusDays(1))
+                .item(item).booker(user2).status(Booking.Status.REJECTED).build());
+        BookingDto expectedBookingDto = BookingDto.builder()
+                .id(booking.getId())
+                .start(booking.getStart())
+                .end(booking.getEnd())
+                .status(booking.getStatus())
                 .item(ItemDtoIdName.builder().id(item.getId()).name(item.getName()).build())
                 .booker(UserDtoId.builder().id(user2.getId()).build())
                 .build();
@@ -228,7 +339,7 @@ public class BookingServiceImplIntegrationTest {
     }
 
     @Test
-    void getAllBookingsAllItemsByOwner_whenInputValid_thenListOfDtoReturned() {
+    void getAllBookingsAllItemsByOwner_whenStateAll_thenListOfDtoReturned() {
         String state = "ALL";
         long from = 0;
         long size = 10;
@@ -252,6 +363,109 @@ public class BookingServiceImplIntegrationTest {
         List<BookingDto> actualList = bookingService.getAllBookingsAllItemsByOwner(user1.getId(), state, from, size);
 
         assertThat(actualList, equalTo(List.of(expectedBookingDto2, expectedBookingDto1)));
+    }
+
+    @Test
+    void getAllBookingsAllItemsByOwner_whenStatePast_thenListOfDtoReturned() {
+        String state = "PAST";
+        long from = 0;
+        long size = 10;
+        BookingDto expectedBookingDto = BookingDto.builder()
+                .id(booking1.getId())
+                .start(booking1.getStart())
+                .end(booking1.getEnd())
+                .status(booking1.getStatus())
+                .item(ItemDtoIdName.builder().id(item.getId()).name(item.getName()).build())
+                .booker(UserDtoId.builder().id(user2.getId()).build())
+                .build();
+
+        List<BookingDto> actualList = bookingService.getAllBookingsAllItemsByOwner(user1.getId(), state, from, size);
+
+        assertThat(actualList, equalTo(List.of(expectedBookingDto)));
+    }
+
+    @Test
+    void getAllBookingsAllItemsByOwner_whenStateFuture_thenListOfDtoReturned() {
+        String state = "FUTURE";
+        long from = 0;
+        long size = 10;
+        BookingDto expectedBookingDto = BookingDto.builder()
+                .id(booking2.getId())
+                .start(booking2.getStart())
+                .end(booking2.getEnd())
+                .status(booking2.getStatus())
+                .item(ItemDtoIdName.builder().id(item.getId()).name(item.getName()).build())
+                .booker(UserDtoId.builder().id(user3.getId()).build())
+                .build();
+
+        List<BookingDto> actualList = bookingService.getAllBookingsAllItemsByOwner(user1.getId(), state, from, size);
+
+        assertThat(actualList, equalTo(List.of(expectedBookingDto)));
+    }
+
+    @Test
+    void getAllBookingsAllItemsByOwner_whenStateCurrent_thenListOfDtoReturned() {
+        String state = "CURRENT";
+        long from = 0;
+        long size = 10;
+        Booking booking = bookingRepository.save(Booking.builder()
+                .start(LocalDateTime.now().minusDays(1))
+                .end(LocalDateTime.now().plusDays(1))
+                .item(item).booker(user2).status(Booking.Status.APPROVED).build());
+        BookingDto expectedBookingDto = BookingDto.builder()
+                .id(booking.getId())
+                .start(booking.getStart())
+                .end(booking.getEnd())
+                .status(booking.getStatus())
+                .item(ItemDtoIdName.builder().id(item.getId()).name(item.getName()).build())
+                .booker(UserDtoId.builder().id(user2.getId()).build())
+                .build();
+
+        List<BookingDto> actualList = bookingService.getAllBookingsAllItemsByOwner(user1.getId(), state, from, size);
+
+        assertThat(actualList, equalTo(List.of(expectedBookingDto)));
+    }
+
+    @Test
+    void getAllBookingsAllItemsByOwner_whenStateWaiting_thenListOfDtoReturned() {
+        String state = "WAITING";
+        long from = 0;
+        long size = 10;
+        BookingDto expectedBookingDto = BookingDto.builder()
+                .id(booking2.getId())
+                .start(booking2.getStart())
+                .end(booking2.getEnd())
+                .status(booking2.getStatus())
+                .item(ItemDtoIdName.builder().id(item.getId()).name(item.getName()).build())
+                .booker(UserDtoId.builder().id(user3.getId()).build())
+                .build();
+
+        List<BookingDto> actualList = bookingService.getAllBookingsAllItemsByOwner(user1.getId(), state, from, size);
+
+        assertThat(actualList, equalTo(List.of(expectedBookingDto)));
+    }
+
+    @Test
+    void getAllBookingsAllItemsByOwner_whenStateRejected_thenListOfDtoReturned() {
+        String state = "REJECTED";
+        long from = 0;
+        long size = 10;
+        Booking booking = bookingRepository.save(Booking.builder()
+                .start(LocalDateTime.now().minusDays(2))
+                .end(LocalDateTime.now().minusDays(1))
+                .item(item).booker(user2).status(Booking.Status.REJECTED).build());
+        BookingDto expectedBookingDto = BookingDto.builder()
+                .id(booking.getId())
+                .start(booking.getStart())
+                .end(booking.getEnd())
+                .status(booking.getStatus())
+                .item(ItemDtoIdName.builder().id(item.getId()).name(item.getName()).build())
+                .booker(UserDtoId.builder().id(user2.getId()).build())
+                .build();
+
+        List<BookingDto> actualList = bookingService.getAllBookingsAllItemsByOwner(user1.getId(), state, from, size);
+
+        assertThat(actualList, equalTo(List.of(expectedBookingDto)));
     }
 
     @Test
