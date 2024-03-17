@@ -73,7 +73,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<ItemRequestDto> getItemRequestsAllButOwner(long userId, @PositiveOrZero long from, @Positive long size) {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new NoSuchUserException("There is no user with id = " + userId));
-        List<ItemRequest> itemRequests = itemRequestRepository.findAllByRequesterIdIsNot(userId ,
+        List<ItemRequest> itemRequests = itemRequestRepository.findAllByRequesterIdIsNot(userId,
                 PageRequest.of((int) (from / size), (int) size, Sort.by(Sort.Direction.DESC, "created")));
         List<Long> itemRequestIds = itemRequests.stream().map(ItemRequest::getId).collect(Collectors.toList());
         List<ItemRequestDto> itemRequestDtos = itemRequests.stream().map(ItemRequestMapper::mapToItemRequestDto)
