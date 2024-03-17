@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ItemDtoIdName {
 
-    private long id;
+    private Long id;
 
     private String name;
 

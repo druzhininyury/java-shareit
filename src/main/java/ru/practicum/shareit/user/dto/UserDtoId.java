@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserDtoId {
 
-    private long id;
+    private Long id;
 
 }

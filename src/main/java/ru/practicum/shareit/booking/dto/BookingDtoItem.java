@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class BookingDtoItem {
 
-    private long id;
+    private Long id;
 
-    private long bookerId;
+    private Long bookerId;
 
     private LocalDateTime start;
 
