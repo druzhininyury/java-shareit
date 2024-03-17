@@ -9,9 +9,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingDto;
+import ru.practicum.shareit.booking.exception.*;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.dto.ItemDtoIdName;
+import ru.practicum.shareit.item.exception.ItemIsNotAvailableException;
+import ru.practicum.shareit.item.exception.NoSuchItemException;
 import ru.practicum.shareit.user.dto.UserDtoId;
+import ru.practicum.shareit.user.exception.NoSuchUserException;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -77,6 +81,102 @@ public class BookingControllerTest {
     }
 
     @Test
+    void addBooking_InvalidStartEndDatesExceptionTest() throws Exception {
+        long bookerId = 2L;
+
+        when(bookingService.addBooking(any(NewBookingDto.class), anyLong()))
+                .thenThrow(new InvalidStartEndDatesException("Error"));
+
+        mvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(new NewBookingDto()))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", bookerId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void addBooking_NoSuchUserExceptionTest() throws Exception {
+        long bookerId = 2L;
+
+        when(bookingService.addBooking(any(NewBookingDto.class), anyLong()))
+                .thenThrow(new NoSuchUserException("Error"));
+
+        mvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(new NewBookingDto()))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", bookerId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void addBooking_NoSuchItemExceptionTest() throws Exception {
+        long bookerId = 2L;
+
+        when(bookingService.addBooking(any(NewBookingDto.class), anyLong()))
+                .thenThrow(new NoSuchItemException("Error"));
+
+        mvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(new NewBookingDto()))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", bookerId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void addBooking_NotBookingRelationExceptionTest() throws Exception {
+        long bookerId = 2L;
+
+        when(bookingService.addBooking(any(NewBookingDto.class), anyLong()))
+                .thenThrow(new NotBookingRelationException("Error"));
+
+        mvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(new NewBookingDto()))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", bookerId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void addBooking_ItemIsNotAvailableExceptionTest() throws Exception {
+        long bookerId = 2L;
+
+        when(bookingService.addBooking(any(NewBookingDto.class), anyLong()))
+                .thenThrow(new ItemIsNotAvailableException("Error"));
+
+        mvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(new NewBookingDto()))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", bookerId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void addBooking_BookingHasNotSavedExceptionTest() throws Exception {
+        long bookerId = 2L;
+
+        when(bookingService.addBooking(any(NewBookingDto.class), anyLong()))
+                .thenThrow(new BookingHasNotSavedException("Error"));
+
+        mvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(new NewBookingDto()))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", bookerId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
     void approveOrRejectBookingTest() throws Exception {
         long bookingId = 1L;
         long ownerId = 1L;
@@ -109,6 +209,62 @@ public class BookingControllerTest {
     }
 
     @Test
+    void approveOrRejectBooking_NoSuchBookingExceptionTest() throws Exception {
+        long bookingId = 1L;
+        long ownerId = 1L;
+
+        when(bookingService.approveOrRejectBooking(anyLong(), anyLong(), anyBoolean()))
+                .thenThrow(new NoSuchBookingException("Error"));
+
+        mvc.perform(patch("/bookings/{bookingId}?approved=true", bookingId)
+                        .header("X-Sharer-User-Id", ownerId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void approveOrRejectBooking_NotBookingRelationExceptionTest() throws Exception {
+        long bookingId = 1L;
+        long ownerId = 1L;
+
+        when(bookingService.approveOrRejectBooking(anyLong(), anyLong(), anyBoolean()))
+                .thenThrow(new NotBookingRelationException("Error"));
+
+        mvc.perform(patch("/bookings/{bookingId}?approved=true", bookingId)
+                        .header("X-Sharer-User-Id", ownerId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void approveOrRejectBooking_NoWaitingStatusExceptionTest() throws Exception {
+        long bookingId = 1L;
+        long ownerId = 1L;
+
+        when(bookingService.approveOrRejectBooking(anyLong(), anyLong(), anyBoolean()))
+                .thenThrow(new NoWaitingStatusException("Error"));
+
+        mvc.perform(patch("/bookings/{bookingId}?approved=true", bookingId)
+                        .header("X-Sharer-User-Id", ownerId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void approveOrRejectBooking_BookingHasNotSavedExceptionTest() throws Exception {
+        long bookingId = 1L;
+        long ownerId = 1L;
+
+        when(bookingService.approveOrRejectBooking(anyLong(), anyLong(), anyBoolean()))
+                .thenThrow(new BookingHasNotSavedException("Error"));
+
+        mvc.perform(patch("/bookings/{bookingId}?approved=true", bookingId)
+                        .header("X-Sharer-User-Id", ownerId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
     void getBookingByIdTest() throws Exception {
         long bookingId = 1L;
         long ownerId = 1L;
@@ -138,6 +294,32 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$.booker.id", is(expectedBookingDto.getBooker().getId()), Long.class));
 
         verify(bookingService, times(1)).getBookingById(bookingId, ownerId);
+    }
+
+    @Test
+    void getBookingById_NoSuchBookingExceptionTest() throws Exception {
+        long bookingId = 1L;
+        long ownerId = 1L;
+
+        when(bookingService.getBookingById(anyLong(), anyLong())).thenThrow(new NoSuchBookingException("Error"));
+
+        mvc.perform(get("/bookings/{bookingId}", bookingId)
+                        .header("X-Sharer-User-Id", ownerId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getBookingById_NotBookingRelationExceptionTest() throws Exception {
+        long bookingId = 1L;
+        long ownerId = 1L;
+
+        when(bookingService.getBookingById(anyLong(), anyLong())).thenThrow(new NotBookingRelationException("Error"));
+
+        mvc.perform(get("/bookings/{bookingId}", bookingId)
+                        .header("X-Sharer-User-Id", ownerId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -175,6 +357,38 @@ public class BookingControllerTest {
     }
 
     @Test
+    void getAllBookingsByCurrentUser_InvalidStateExceptionTest() throws Exception {
+        long bookerId = 2L;
+        String state = "ALL";
+        long from = 0;
+        long size = 0;
+
+        when(bookingService.getAllBookingsByUser(anyLong(), anyString(), anyLong(), anyLong()))
+                .thenThrow(new InvalidStateException("Error"));
+
+        mvc.perform(get("/bookings?state={state}&from={from}&size={size}", state, from, size)
+                        .header("X-Sharer-User-Id", bookerId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getAllBookingsByCurrentUser_NoSuchUserExceptionTest() throws Exception {
+        long bookerId = 2L;
+        String state = "ALL";
+        long from = 0;
+        long size = 0;
+
+        when(bookingService.getAllBookingsByUser(anyLong(), anyString(), anyLong(), anyLong()))
+                .thenThrow(new NoSuchUserException("Error"));
+
+        mvc.perform(get("/bookings?state={state}&from={from}&size={size}", state, from, size)
+                        .header("X-Sharer-User-Id", bookerId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void getAllBookingsAllItemsByOwnerTest() throws Exception {
         long ownerId = 1L;
         String state = "ALL";
@@ -207,6 +421,38 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$[0].booker.id", is(expectedBookingDto.getBooker().getId()), Long.class));
 
         verify(bookingService, times(1)).getAllBookingsAllItemsByOwner(ownerId, state, from, size);
+    }
+
+    @Test
+    void getAllBookingsAllItemsByOwner_InvalidStateExceptionTest() throws Exception {
+        long ownerId = 1L;
+        String state = "ALL";
+        long from = 0;
+        long size = 0;
+
+        when(bookingService.getAllBookingsAllItemsByOwner(anyLong(), anyString(), anyLong(), anyLong()))
+                .thenThrow(new InvalidStateException("Error"));
+
+        mvc.perform(get("/bookings/owner?state={state}&from={from}&size={size}", state, from, size)
+                        .header("X-Sharer-User-Id", ownerId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getAllBookingsAllItemsByOwner_NoSuchUserExceptionTest() throws Exception {
+        long ownerId = 1L;
+        String state = "ALL";
+        long from = 0;
+        long size = 0;
+
+        when(bookingService.getAllBookingsAllItemsByOwner(anyLong(), anyString(), anyLong(), anyLong()))
+                .thenThrow(new NoSuchUserException("Error"));
+
+        mvc.perform(get("/bookings/owner?state={state}&from={from}&size={size}", state, from, size)
+                        .header("X-Sharer-User-Id", ownerId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
 }

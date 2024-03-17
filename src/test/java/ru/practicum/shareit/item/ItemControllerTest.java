@@ -10,6 +10,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.exception.*;
+import ru.practicum.shareit.request.exception.NoSuchItemRequestException;
+import ru.practicum.shareit.user.exception.NoSuchUserException;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -97,6 +100,51 @@ public class ItemControllerTest {
     }
 
     @Test
+    void addItem_NoSuchUserExceptionTest() throws Exception {
+        long userId = 1L;
+
+        when(itemService.addItem(any(ItemDto.class), anyLong())).thenThrow(new NoSuchUserException("Error"));
+
+        mvc.perform(post("/items")
+                        .content(mapper.writeValueAsString(itemDtoIn))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void addItem_NoSuchItemRequestExceptionTest() throws Exception {
+        long userId = 1L;
+
+        when(itemService.addItem(any(ItemDto.class), anyLong())).thenThrow(new NoSuchItemRequestException("Error"));
+
+        mvc.perform(post("/items")
+                        .content(mapper.writeValueAsString(itemDtoIn))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void addItem_ItemHasNotSavedExceptionTest() throws Exception {
+        long userId = 1L;
+
+        when(itemService.addItem(any(ItemDto.class), anyLong())).thenThrow(new ItemHasNotSavedException("Error"));
+
+        mvc.perform(post("/items")
+                        .content(mapper.writeValueAsString(itemDtoIn))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
     void updateItemDataTest() throws Exception {
         long itemId = 1L;
         long userId = 1L;
@@ -120,6 +168,57 @@ public class ItemControllerTest {
     }
 
     @Test
+    void updateItemData_NoSuchItemExceptionTest() throws Exception {
+        long itemId = 1L;
+        long userId = 1L;
+
+        when(itemService.updateItemData(any(ItemDto.class), anyLong(), anyLong()))
+                .thenThrow(new NoSuchItemException("Error"));
+
+        mvc.perform(patch("/items/{itemId}", itemId)
+                        .content(mapper.writeValueAsString(itemDtoUpdatedIn))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateItemData_UserNotOwnItemExceptionTest() throws Exception {
+        long itemId = 1L;
+        long userId = 1L;
+
+        when(itemService.updateItemData(any(ItemDto.class), anyLong(), anyLong()))
+                .thenThrow(new UserNotOwnItemException("Error"));
+
+        mvc.perform(patch("/items/{itemId}", itemId)
+                        .content(mapper.writeValueAsString(itemDtoUpdatedIn))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void updateItemData_ItemHasNotSavedExceptionTest() throws Exception {
+        long itemId = 1L;
+        long userId = 1L;
+
+        when(itemService.updateItemData(any(ItemDto.class), anyLong(), anyLong()))
+                .thenThrow(new ItemHasNotSavedException("Error"));
+
+        mvc.perform(patch("/items/{itemId}", itemId)
+                        .content(mapper.writeValueAsString(itemDtoUpdatedIn))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
     void getItemByIdTest() throws Exception {
         long itemId = 1L;
         long userId = 1L;
@@ -137,6 +236,32 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$.available", is(itemDtoOut.getAvailable())));
 
         verify(itemService).getItemById(userId, itemId);
+    }
+
+    @Test
+    void getItemById_NoSuchUserExceptionTest() throws Exception {
+        long itemId = 1L;
+        long userId = 1L;
+
+        when(itemService.getItemById(anyLong(), anyLong())).thenThrow(new NoSuchUserException("Error"));
+
+        mvc.perform(get("/items/{itemId}", itemId)
+                        .header("X-Sharer-User-Id", userId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getItemById_NoSuchItemExceptionTest() throws Exception {
+        long itemId = 1L;
+        long userId = 1L;
+
+        when(itemService.getItemById(anyLong(), anyLong())).thenThrow(new NoSuchItemException("Error"));
+
+        mvc.perform(get("/items/{itemId}", itemId)
+                        .header("X-Sharer-User-Id", userId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -158,6 +283,21 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$[0].available", is(itemDtoOut.getAvailable())));
 
         verify(itemService).getAllItemsByUserId(userId, from, size);
+    }
+
+    @Test
+    void getAllItemsByUserId_NoSuchUserExceptionTest() throws Exception {
+        long userId = 1L;
+        long from = 0;
+        long size = 10;
+
+        when(itemService.getAllItemsByUserId(anyLong(), anyLong(), anyLong()))
+                .thenThrow(new NoSuchUserException("Error"));
+
+        mvc.perform(get("/items?from={from}&size={size}", from, size)
+                        .header("X-Sharer-User-Id", userId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -201,5 +341,73 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$.created", is(commentDtoOut.getCreated().format(DateTimeFormatter.ISO_DATE_TIME))));
 
         verify(itemService).addComment(userId, itemId, commentDtoIn);
+    }
+
+    @Test
+    void addComment_NoSuchUserExceptionTest() throws Exception {
+        long userId = 1;
+        long itemId = 1;
+
+        when(itemService.addComment(anyLong(), anyLong(), any(CommentDto.class)))
+                .thenThrow(new NoSuchUserException("Error"));
+
+        mvc.perform(post("/items/{itemId}/comment", itemId)
+                        .content(mapper.writeValueAsString(commentDtoIn))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void addComment_NoSuchItemExceptionTest() throws Exception {
+        long userId = 1;
+        long itemId = 1;
+
+        when(itemService.addComment(anyLong(), anyLong(), any(CommentDto.class)))
+                .thenThrow(new NoSuchItemException("Error"));
+
+        mvc.perform(post("/items/{itemId}/comment", itemId)
+                        .content(mapper.writeValueAsString(commentDtoIn))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void addComment_NoFinishBookingForCommentExceptionTest() throws Exception {
+        long userId = 1;
+        long itemId = 1;
+
+        when(itemService.addComment(anyLong(), anyLong(), any(CommentDto.class)))
+                .thenThrow(new NoFinishBookingForCommentException("Error"));
+
+        mvc.perform(post("/items/{itemId}/comment", itemId)
+                        .content(mapper.writeValueAsString(commentDtoIn))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void addComment_CommentHasNotSavedExceptionTest() throws Exception {
+        long userId = 1;
+        long itemId = 1;
+
+        when(itemService.addComment(anyLong(), anyLong(), any(CommentDto.class)))
+                .thenThrow(new CommentHasNotSavedException("Error"));
+
+        mvc.perform(post("/items/{itemId}/comment", itemId)
+                        .content(mapper.writeValueAsString(commentDtoIn))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
     }
 }

@@ -9,11 +9,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.exception.NoSuchUserException;
+import ru.practicum.shareit.user.exception.UserHasNotSavedException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -74,6 +78,17 @@ public class UserControllerTest {
     }
 
     @Test
+    void addUser_whenUserHasNotSavedExceptionTest() throws Exception {
+        when(mockUserService.addUser(any(UserDto.class))).thenThrow(new UserHasNotSavedException("Error"));
+        mvc.perform(post("/users")
+                        .content(mapper.writeValueAsString(userDtoAddIn))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
     void updateUserData() throws Exception {
         when(mockUserService.updateUserData(userDtoUpdateIn, 1L))
                 .thenReturn(userDtoUpdateOut);
@@ -86,6 +101,30 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.id", is(userDtoUpdateOut.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(userDtoUpdateOut.getName())))
                 .andExpect(jsonPath("$.email", is(userDtoUpdateOut.getEmail())));
+    }
+
+    @Test
+    void updateUserData_whenNoSuchUserExceptionTest() throws Exception {
+        when(mockUserService.updateUserData(any(UserDto.class), anyLong()))
+                .thenThrow(new NoSuchUserException("Error"));
+        mvc.perform(patch("/users/1")
+                        .content(mapper.writeValueAsString(userDtoUpdateIn))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateUserData_whenUserHasNotSavedExceptionTest() throws Exception {
+        when(mockUserService.updateUserData(any(UserDto.class), anyLong()))
+                .thenThrow(new UserHasNotSavedException("Error"));
+        mvc.perform(patch("/users/1")
+                        .content(mapper.writeValueAsString(userDtoUpdateIn))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
     }
 
     @Test
@@ -109,6 +148,18 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.id", is(userDtoUpdateOut.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(userDtoUpdateOut.getName())))
                 .andExpect(jsonPath("$.email", is(userDtoUpdateOut.getEmail())));
+    }
+
+    @Test
+    void getUserByIdTest_whenNoSuchUserExceptionTest() throws Exception {
+        when(mockUserService.getUserById(anyLong()))
+                .thenThrow(new NoSuchUserException("Error"));
+        mvc.perform(get("/users/1")
+                        .content(mapper.writeValueAsString(userDtoUpdateIn))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test

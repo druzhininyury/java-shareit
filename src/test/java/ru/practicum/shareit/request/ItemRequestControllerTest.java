@@ -9,12 +9,17 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.exception.ItemRequestHasNotSavedException;
+import ru.practicum.shareit.request.exception.NoSuchItemRequestException;
+import ru.practicum.shareit.user.exception.NoSuchUserException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -65,6 +70,38 @@ public class ItemRequestControllerTest {
     }
 
     @Test
+    void addItemRequest_NoSuchUserExceptionTest() throws Exception {
+        long requesterId = 2L;
+
+        when(itemRequestService.addItemRequest(anyLong(), any(ItemRequestDto.class)))
+                .thenThrow(new NoSuchUserException("Error"));
+
+        mvc.perform(post("/requests")
+                        .content(mapper.writeValueAsString(new ItemRequestDto()))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", requesterId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void addItemRequest_ItemRequestHasNotSavedExceptionTest() throws Exception {
+        long requesterId = 2L;
+
+        when(itemRequestService.addItemRequest(anyLong(), any(ItemRequestDto.class)))
+                .thenThrow(new ItemRequestHasNotSavedException("Error"));
+
+        mvc.perform(post("/requests")
+                        .content(mapper.writeValueAsString(new ItemRequestDto()))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", requesterId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
     void getItemRequestsByOwnerTest() throws Exception {
         long requesterId = 2L;
         long requestId = 1L;
@@ -99,6 +136,20 @@ public class ItemRequestControllerTest {
                 .andExpect(jsonPath("$[0].items[0].requestId", is(itemDto.getRequestId()), Long.class));
 
         verify(itemRequestService).getItemRequestsByOwner(requesterId);
+    }
+
+    @Test
+    void getItemRequestsByOwner_NoSuchUserExceptionTest() throws Exception {
+        long requesterId = 2L;
+        long requestId = 1L;
+        long itemId = 1L;
+
+        when(itemRequestService.getItemRequestsByOwner(anyLong())).thenThrow(new NoSuchUserException("Error"));
+
+        mvc.perform(get("/requests")
+                        .header("X-Sharer-User-Id", requesterId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -142,6 +193,21 @@ public class ItemRequestControllerTest {
     }
 
     @Test
+    void getItemRequestsAllButOwner_NoSuchUserExceptionTest() throws Exception {
+        long requesterId = 2L;
+        long from = 0;
+        long size = 10;
+
+        when(itemRequestService.getItemRequestsAllButOwner(anyLong(), anyLong(), anyLong()))
+                .thenThrow(new NoSuchUserException("Error"));
+
+        mvc.perform(get("/requests/all?from={from}&size={size}", from, size)
+                        .header("X-Sharer-User-Id", requesterId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void getItemRequestByIdTest() throws Exception {
         long requesterId = 2L;
         long requestId = 1L;
@@ -175,5 +241,32 @@ public class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.items[0].requestId", is(itemDto.getRequestId()), Long.class));
 
         verify(itemRequestService).getItemRequestById(requesterId, requestId);
+    }
+
+    @Test
+    void getItemRequestById_NoSuchUserExceptionTest() throws Exception {
+        long requesterId = 2L;
+        long requestId = 1L;
+
+        when(itemRequestService.getItemRequestById(anyLong(), anyLong())).thenThrow(new NoSuchUserException("Error"));
+
+        mvc.perform(get("/requests/{requestId}", requestId)
+                        .header("X-Sharer-User-Id", requesterId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getItemRequestById_NoSuchItemRequestExceptionTest() throws Exception {
+        long requesterId = 2L;
+        long requestId = 1L;
+
+        when(itemRequestService.getItemRequestById(anyLong(), anyLong()))
+                .thenThrow(new NoSuchItemRequestException("Error"));
+
+        mvc.perform(get("/requests/{requestId}", requestId)
+                        .header("X-Sharer-User-Id", requesterId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }
