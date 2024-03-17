@@ -103,13 +103,6 @@ public class ApplicationExceptionHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleEmailAlreadyExistException(EmailAlreadyExistException e) {
-        log.warn(e.getMessage());
-        return new ErrorResponse("Email already exists.", e.getMessage());
-    }
-
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleConstraintViolationException(ConstraintViolationException e) {
         log.warn(e.getMessage());
@@ -121,13 +114,6 @@ public class ApplicationExceptionHandler {
     public ErrorResponse handleNoSuchUserException(NoSuchUserException e) {
         log.warn(e.getMessage());
         return new ErrorResponse("No such user exists.", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleNoUserIdProvidedException(NoUserIdProvidedException e) {
-        log.warn(e.getMessage());
-        return new ErrorResponse("No user id provided.", e.getMessage());
     }
 
     @ExceptionHandler
