@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
@@ -16,6 +17,7 @@ public class ItemDtoIdNameTest {
     private JacksonTester<ItemDtoIdName> json;
 
     @Test
+    @DisplayName("Test: ItemDtoIdName serialization.")
     void testItemDto() throws Exception {
         ItemDtoIdName itemDtoIdName = ItemDtoIdName.builder()
                 .id(1L)

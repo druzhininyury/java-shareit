@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
@@ -16,7 +17,8 @@ public class UserDtoIdTest {
     private JacksonTester<UserDtoId> json;
 
     @Test
-    void testUserDto() throws Exception {
+    @DisplayName("Test: UserDtoId serialization.")
+    void testUserDtoId() throws Exception {
         UserDtoId userDtoId = UserDtoId.builder().id(1L).build();
 
         JsonContent<UserDtoId> result = json.write(userDtoId);

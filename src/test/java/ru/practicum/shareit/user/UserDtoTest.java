@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
@@ -16,6 +17,7 @@ public class UserDtoTest {
     private JacksonTester<UserDto> json;
 
     @Test
+    @DisplayName("Test: UserDto serialization.")
     void testUserDto() throws Exception {
         UserDto userDto = UserDto.builder().id(1L).name("user").email("user@yandex.ru").build();
 

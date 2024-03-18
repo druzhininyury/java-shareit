@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
@@ -19,6 +20,7 @@ public class BookingDtoItemTest {
     private JacksonTester<BookingDtoItem> json;
 
     @Test
+    @DisplayName("Test: BookingDtoItem serialization.")
     void testBookingDtoItem() throws Exception {
         BookingDtoItem bookingDtoItem = BookingDtoItem.builder()
                 .id(2L)

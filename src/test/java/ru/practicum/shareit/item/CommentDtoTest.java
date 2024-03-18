@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
@@ -19,6 +20,7 @@ public class CommentDtoTest {
     private JacksonTester<CommentDto> json;
 
     @Test
+    @DisplayName("Test: CommentDto serialization.")
     void testCommentDto() throws Exception {
         CommentDto commentDto = CommentDto.builder()
                 .id(1L)
