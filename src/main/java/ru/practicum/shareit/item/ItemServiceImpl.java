@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -14,12 +15,17 @@ import ru.practicum.shareit.item.exception.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
+import ru.practicum.shareit.request.ItemRequestRepository;
+import ru.practicum.shareit.request.exception.NoSuchItemRequestException;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.exception.NoSuchUserException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +40,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
     @Transactional
@@ -41,6 +48,12 @@ public class ItemServiceImpl implements ItemService {
         User owner = userRepository.findById(userId).orElseThrow(() ->
                 new NoSuchUserException("Can't add item, no user found with id=" + userId));
         Item item = ItemMapper.toItem(itemDto, owner);
+        if (itemDto.getRequestId() != null) {
+            ItemRequest itemRequest = itemRequestRepository.findById(itemDto.getRequestId()).orElseThrow(() ->
+                    new NoSuchItemRequestException("Can't add item, no item request with id = "
+                            + itemDto.getRequestId()));
+            item.setRequest(itemRequest);
+        }
         try {
             return ItemMapper.toItemDto(itemRepository.save(item));
         } catch (DataIntegrityViolationException e) {
@@ -99,10 +112,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllItemsByUserId(long userId) {
+    public List<ItemDto> getAllItemsByUserId(long userId, @PositiveOrZero long from, @Positive long size) {
         User owner = userRepository.findById(userId).orElseThrow(() ->
                 new NoSuchUserException("There is no user with id = " + userId));
-        List<Item> items = itemRepository.findAllByOwnerId(userId);
+        PageRequest pageRequest = PageRequest.of((int) (from / size), (int) size);
+        List<Item> items = itemRepository.findAllByOwnerId(userId, pageRequest);
         List<ItemDto> dtos = ItemMapper.toItemDto(items);
         for (ItemDto dto : dtos) {
             dto.setComments(CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(dto.getId())));
@@ -127,11 +141,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllItemsWithText(String text) {
+    public List<ItemDto> getAllItemsWithText(String text, @PositiveOrZero long from, @Positive long size) {
         if (text.isBlank()) {
             return List.of();
         }
-        return ItemMapper.toItemDto(itemRepository.findAllContainingText(text));
+        PageRequest pageRequest = PageRequest.of((int) (from / size), (int) size);
+        return ItemMapper.toItemDto(itemRepository.findAllContainingText(text, pageRequest));
     }
 
     @Transactional

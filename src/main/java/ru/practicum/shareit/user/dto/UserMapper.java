@@ -32,10 +32,4 @@ public class UserMapper {
         return user;
     }
 
-    public static User mapToUser(UserDto userDto, long userId) {
-        User user = mapToUser(userDto);
-        user.setId(userId);
-        return user;
-    }
-
 }

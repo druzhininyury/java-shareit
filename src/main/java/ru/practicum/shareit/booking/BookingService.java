@@ -4,6 +4,8 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 public interface BookingService {
@@ -23,8 +25,9 @@ public interface BookingService {
 
     BookingDto getBookingById(long bookingId, long userId);
 
-    List<BookingDto> getAllBookingsByUser(long userId, String state);
+    List<BookingDto> getAllBookingsByUser(long userId, String state, @PositiveOrZero long from, @Positive long size);
 
-    List<BookingDto> getAllBookingsAllItemsByOwner(long userId, String state);
+    List<BookingDto> getAllBookingsAllItemsByOwner(
+            long userId, String state, @PositiveOrZero long from, @Positive long size);
 
 }

@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.booking.exception.*;
 import ru.practicum.shareit.item.exception.*;
+import ru.practicum.shareit.request.exception.ItemRequestHasNotSavedException;
+import ru.practicum.shareit.request.exception.NoSuchItemRequestException;
 import ru.practicum.shareit.user.exception.NoSuchUserException;
 import ru.practicum.shareit.user.exception.UserHasNotSavedException;
 
@@ -60,6 +62,13 @@ public class ApplicationExceptionHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleItemRequestHasNotSavedException(ItemRequestHasNotSavedException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("ItemRequest hasn't been saved.", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleBookingHasNotSavedException(BookingHasNotSavedException e) {
         log.warn(e.getMessage());
         return new ErrorResponse("Booking hasn't been saved.", e.getMessage());
@@ -94,13 +103,6 @@ public class ApplicationExceptionHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleEmailAlreadyExistException(EmailAlreadyExistException e) {
-        log.warn(e.getMessage());
-        return new ErrorResponse("Email already exists.", e.getMessage());
-    }
-
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleConstraintViolationException(ConstraintViolationException e) {
         log.warn(e.getMessage());
@@ -115,10 +117,10 @@ public class ApplicationExceptionHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleNoUserIdProvidedException(NoUserIdProvidedException e) {
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNoSuchItemRequestException(NoSuchItemRequestException e) {
         log.warn(e.getMessage());
-        return new ErrorResponse("No user id provided.", e.getMessage());
+        return new ErrorResponse("No such item request exists.", e.getMessage());
     }
 
     @ExceptionHandler

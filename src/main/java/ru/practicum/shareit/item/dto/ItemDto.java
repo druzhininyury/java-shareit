@@ -1,6 +1,9 @@
 package ru.practicum.shareit.item.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingDtoItem;
 
 import javax.validation.constraints.NotEmpty;
@@ -8,6 +11,9 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ItemDto {
 
     private Long id;
@@ -20,6 +26,8 @@ public class ItemDto {
 
     @NotNull(message = "Item available field can't be null.")
     private Boolean available;
+
+    private Long requestId;
 
     private BookingDtoItem lastBooking;
 
