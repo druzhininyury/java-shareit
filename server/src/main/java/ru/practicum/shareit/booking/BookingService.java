@@ -19,15 +19,14 @@ public interface BookingService {
         REJECTED
     }
 
-    BookingDto addBooking(@Valid NewBookingDto newBookingDto, long userId);
+    BookingDto addBooking(NewBookingDto newBookingDto, long userId);
 
     BookingDto approveOrRejectBooking(long bookingId, long userId, boolean approved);
 
     BookingDto getBookingById(long bookingId, long userId);
 
-    List<BookingDto> getAllBookingsByUser(long userId, String state, @PositiveOrZero long from, @Positive long size);
+    List<BookingDto> getAllBookingsByUser(long userId, String state, long from, long size);
 
-    List<BookingDto> getAllBookingsAllItemsByOwner(
-            long userId, String state, @PositiveOrZero long from, @Positive long size);
+    List<BookingDto> getAllBookingsAllItemsByOwner(long userId, String state, long from, long size);
 
 }

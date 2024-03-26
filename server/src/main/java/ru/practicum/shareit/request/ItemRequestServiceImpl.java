@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Validated
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
@@ -39,7 +38,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     @Transactional
-    public ItemRequestDto addItemRequest(long userId, @Valid ItemRequestDto itemRequestDto) {
+    public ItemRequestDto addItemRequest(long userId, ItemRequestDto itemRequestDto) {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new NoSuchUserException("There is no user with id = " + userId));
         itemRequestDto.setCreated(LocalDateTime.now());
@@ -70,7 +69,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemRequestDto> getItemRequestsAllButOwner(long userId, @PositiveOrZero long from, @Positive long size) {
+    public List<ItemRequestDto> getItemRequestsAllButOwner(long userId, long from, long size) {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new NoSuchUserException("There is no user with id = " + userId));
         List<ItemRequest> itemRequests = itemRequestRepository.findAllByRequesterIdIsNot(userId,

@@ -102,15 +102,15 @@ public class ItemRequestServiceImplIntegrationTest {
         assertThat(actualItemRequestDto, equalTo(expectedItemRequestDto));
     }
 
-    @Test
-    void addItemRequest_whenDescriptionBlank_thenExceptionThrown() {
-        ItemRequestDto newItemRequestDto = ItemRequestDto.builder()
-                .description("")
-                .build();
-
-        assertThrows(ConstraintViolationException.class,
-                () -> itemRequestService.addItemRequest(user4.getId(), newItemRequestDto));
-    }
+//    @Test
+//    void addItemRequest_whenDescriptionBlank_thenExceptionThrown() {
+//        ItemRequestDto newItemRequestDto = ItemRequestDto.builder()
+//                .description("")
+//                .build();
+//
+//        assertThrows(ConstraintViolationException.class,
+//                () -> itemRequestService.addItemRequest(user4.getId(), newItemRequestDto));
+//    }
 
     @Test
     void getItemRequestsByOwner_whenInputValid_thenListOfDtoReturned() {
@@ -158,23 +158,23 @@ public class ItemRequestServiceImplIntegrationTest {
         assertThat(actualList, equalTo(List.of(expectedItemRequestDto)));
     }
 
-    @Test
-    void getItemRequestsAllButOwner_whenFromNegative_thenExceptionThrown() {
-        long from = -1L;
-        long size = 10L;
+//    @Test
+//    void getItemRequestsAllButOwner_whenFromNegative_thenExceptionThrown() {
+//        long from = -1L;
+//        long size = 10L;
+//
+//        assertThrows(ConstraintViolationException.class,
+//                () -> itemRequestService.getItemRequestsAllButOwner(user2.getId(), from, size));
+//    }
 
-        assertThrows(ConstraintViolationException.class,
-                () -> itemRequestService.getItemRequestsAllButOwner(user2.getId(), from, size));
-    }
-
-    @Test
-    void getItemRequestsAllButOwner_whenSizeNegative_thenExceptionThrown() {
-        long from = 0L;
-        long size = -10L;
-
-        assertThrows(ConstraintViolationException.class,
-                () -> itemRequestService.getItemRequestsAllButOwner(user2.getId(), from, size));
-    }
+//    @Test
+//    void getItemRequestsAllButOwner_whenSizeNegative_thenExceptionThrown() {
+//        long from = 0L;
+//        long size = -10L;
+//
+//        assertThrows(ConstraintViolationException.class,
+//                () -> itemRequestService.getItemRequestsAllButOwner(user2.getId(), from, size));
+//    }
 
     @Test
     void getItemRequestById_whenInputValid_thenDtoReturned() {

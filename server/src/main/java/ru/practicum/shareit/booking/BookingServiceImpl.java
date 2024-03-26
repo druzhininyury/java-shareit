@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -28,7 +29,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Validated
 @Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
 
@@ -38,7 +38,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public BookingDto addBooking(@Valid NewBookingDto newBookingDto, long userId) {
+    public BookingDto addBooking(NewBookingDto newBookingDto, long userId) {
         if (!isNewBookingDtoDatesValid(newBookingDto)) {
             throw new InvalidStartEndDatesException("End date is equal or less than start date.");
         }
@@ -91,7 +91,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public List<BookingDto> getAllBookingsByUser(
-            long userId, String state, @PositiveOrZero long from, @Positive long size) {
+            long userId, String state, long from, long size) {
         State bookingState;
         try {
             bookingState = State.valueOf(state);
@@ -130,7 +130,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public List<BookingDto> getAllBookingsAllItemsByOwner(
-            long userId, String state, @PositiveOrZero long from, @Positive long size) {
+            long userId, String state, long from, long size) {
         State bookingState;
         try {
             bookingState = State.valueOf(state);

@@ -98,62 +98,62 @@ public class BookingServiceImplIntegrationTest {
         assertThat(actualBookingDto, equalTo(expectedBookingDto));
     }
 
-    @Test
-    void addBooking_whenItemIdNull_thenExceptionThrown() {
-        NewBookingDto newBookingDto = NewBookingDto.builder()
-                .start(LocalDateTime.now().plusDays(1))
-                .end(LocalDateTime.now().plusDays(2))
-                .build();
+//    @Test
+//    void addBooking_whenItemIdNull_thenExceptionThrown() {
+//        NewBookingDto newBookingDto = NewBookingDto.builder()
+//                .start(LocalDateTime.now().plusDays(1))
+//                .end(LocalDateTime.now().plusDays(2))
+//                .build();
+//
+//        assertThrows(ConstraintViolationException.class,
+//                () -> bookingService.addBooking(newBookingDto, user2.getId()));
+//    }
 
-        assertThrows(ConstraintViolationException.class,
-                () -> bookingService.addBooking(newBookingDto, user2.getId()));
-    }
+//    @Test
+//    void addBooking_whenStartNull_thenExceptionThrown() {
+//        NewBookingDto newBookingDto = NewBookingDto.builder()
+//                .itemId(item.getId())
+//                .end(LocalDateTime.now().plusDays(2))
+//                .build();
+//
+//        assertThrows(ConstraintViolationException.class,
+//                () -> bookingService.addBooking(newBookingDto, user2.getId()));
+//    }
 
-    @Test
-    void addBooking_whenStartNull_thenExceptionThrown() {
-        NewBookingDto newBookingDto = NewBookingDto.builder()
-                .itemId(item.getId())
-                .end(LocalDateTime.now().plusDays(2))
-                .build();
+//    @Test
+//    void addBooking_whenStartInPast_thenExceptionThrown() {
+//        NewBookingDto newBookingDto = NewBookingDto.builder()
+//                .itemId(item.getId())
+//                .start(LocalDateTime.now().minusDays(1))
+//                .end(LocalDateTime.now().plusDays(2))
+//                .build();
+//
+//        assertThrows(ConstraintViolationException.class,
+//                () -> bookingService.addBooking(newBookingDto, user2.getId()));
+//    }
 
-        assertThrows(ConstraintViolationException.class,
-                () -> bookingService.addBooking(newBookingDto, user2.getId()));
-    }
+//    @Test
+//    void addBooking_whenEndNull_thenExceptionThrown() {
+//        NewBookingDto newBookingDto = NewBookingDto.builder()
+//                .itemId(item.getId())
+//                .start(LocalDateTime.now().plusDays(1))
+//                .build();
+//
+//        assertThrows(ConstraintViolationException.class,
+//                () -> bookingService.addBooking(newBookingDto, user2.getId()));
+//    }
 
-    @Test
-    void addBooking_whenStartInPast_thenExceptionThrown() {
-        NewBookingDto newBookingDto = NewBookingDto.builder()
-                .itemId(item.getId())
-                .start(LocalDateTime.now().minusDays(1))
-                .end(LocalDateTime.now().plusDays(2))
-                .build();
-
-        assertThrows(ConstraintViolationException.class,
-                () -> bookingService.addBooking(newBookingDto, user2.getId()));
-    }
-
-    @Test
-    void addBooking_whenEndNull_thenExceptionThrown() {
-        NewBookingDto newBookingDto = NewBookingDto.builder()
-                .itemId(item.getId())
-                .start(LocalDateTime.now().plusDays(1))
-                .build();
-
-        assertThrows(ConstraintViolationException.class,
-                () -> bookingService.addBooking(newBookingDto, user2.getId()));
-    }
-
-    @Test
-    void addBooking_whenEndInPast_thenExceptionThrown() {
-        NewBookingDto newBookingDto = NewBookingDto.builder()
-                .itemId(item.getId())
-                .start(LocalDateTime.now().minusDays(2))
-                .end(LocalDateTime.now().plusDays(1))
-                .build();
-
-        assertThrows(ConstraintViolationException.class,
-                () -> bookingService.addBooking(newBookingDto, user2.getId()));
-    }
+//    @Test
+//    void addBooking_whenEndInPast_thenExceptionThrown() {
+//        NewBookingDto newBookingDto = NewBookingDto.builder()
+//                .itemId(item.getId())
+//                .start(LocalDateTime.now().minusDays(2))
+//                .end(LocalDateTime.now().plusDays(1))
+//                .build();
+//
+//        assertThrows(ConstraintViolationException.class,
+//                () -> bookingService.addBooking(newBookingDto, user2.getId()));
+//    }
 
     @Test
     void approveOrRejectBooking_whenInputValid_thenBookingUpdated() {
@@ -318,25 +318,25 @@ public class BookingServiceImplIntegrationTest {
         assertThat(actualList, equalTo(List.of(expectedBookingDto)));
     }
 
-    @Test
-    void getAllBookingsByUser_whenFromNegative_thenExceptionThrown() {
-        String state = "ALL";
-        long from = -1;
-        long size = 10;
+//    @Test
+//    void getAllBookingsByUser_whenFromNegative_thenExceptionThrown() {
+//        String state = "ALL";
+//        long from = -1;
+//        long size = 10;
+//
+//        assertThrows(ConstraintViolationException.class,
+//                () -> bookingService.getAllBookingsByUser(user2.getId(), state, from, size));
+//    }
 
-        assertThrows(ConstraintViolationException.class,
-                () -> bookingService.getAllBookingsByUser(user2.getId(), state, from, size));
-    }
-
-    @Test
-    void getAllBookingsByUser_whenSizeNegative_thenExceptionThrown() {
-        String state = "ALL";
-        long from = 0;
-        long size = -10;
-
-        assertThrows(ConstraintViolationException.class,
-                () -> bookingService.getAllBookingsByUser(user2.getId(), state, from, size));
-    }
+//    @Test
+//    void getAllBookingsByUser_whenSizeNegative_thenExceptionThrown() {
+//        String state = "ALL";
+//        long from = 0;
+//        long size = -10;
+//
+//        assertThrows(ConstraintViolationException.class,
+//                () -> bookingService.getAllBookingsByUser(user2.getId(), state, from, size));
+//    }
 
     @Test
     void getAllBookingsAllItemsByOwner_whenStateAll_thenListOfDtoReturned() {
@@ -468,24 +468,24 @@ public class BookingServiceImplIntegrationTest {
         assertThat(actualList, equalTo(List.of(expectedBookingDto)));
     }
 
-    @Test
-    void getAllBookingsAllItemsByOwner_whenFromNegative_thenExceptionThrown() {
-        String state = "ALL";
-        long from = -1;
-        long size = 10;
+//    @Test
+//    void getAllBookingsAllItemsByOwner_whenFromNegative_thenExceptionThrown() {
+//        String state = "ALL";
+//        long from = -1;
+//        long size = 10;
+//
+//        assertThrows(ConstraintViolationException.class,
+//                () -> bookingService.getAllBookingsAllItemsByOwner(user1.getId(), state, from, size));
+//    }
 
-        assertThrows(ConstraintViolationException.class,
-                () -> bookingService.getAllBookingsAllItemsByOwner(user1.getId(), state, from, size));
-    }
-
-    @Test
-    void getAllBookingsAllItemsByOwner_whenSizeNegative_thenExceptionThrown() {
-        String state = "ALL";
-        long from = 0;
-        long size = -10;
-
-        assertThrows(ConstraintViolationException.class,
-                () -> bookingService.getAllBookingsAllItemsByOwner(user1.getId(), state, from, size));
-    }
+//    @Test
+//    void getAllBookingsAllItemsByOwner_whenSizeNegative_thenExceptionThrown() {
+//        String state = "ALL";
+//        long from = 0;
+//        long size = -10;
+//
+//        assertThrows(ConstraintViolationException.class,
+//                () -> bookingService.getAllBookingsAllItemsByOwner(user1.getId(), state, from, size));
+//    }
 
 }
