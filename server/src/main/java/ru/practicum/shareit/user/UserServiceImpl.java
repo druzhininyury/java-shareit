@@ -15,7 +15,6 @@ import javax.validation.Valid;
 import java.util.List;
 
 @Service
-@Validated
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -24,7 +23,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto addUser(@Valid UserDto userDto) {
+    public UserDto addUser(UserDto userDto) {
         try {
             User user = userRepository.save(UserMapper.mapToUser(userDto));
             return UserMapper.mapToUserDto(user);

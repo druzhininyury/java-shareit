@@ -52,26 +52,26 @@ public class UserServiceImplIntegrationTest {
         assertThat(actualUserDto, equalTo(expectedUserDto));
     }
 
-    @Test
-    void addUser_whenNameNull_thenExceptionThrown() {
-        UserDto newUserDto = UserDto.builder().email("user@yandex.ru").build();
+//    @Test
+//    void addUser_whenNameNull_thenExceptionThrown() {
+//        UserDto newUserDto = UserDto.builder().email("user@yandex.ru").build();
+//
+//        assertThrows(ConstraintViolationException.class, () -> userService.addUser(newUserDto));
+//    }
 
-        assertThrows(ConstraintViolationException.class, () -> userService.addUser(newUserDto));
-    }
+//    @Test
+//    void addUser_whenEmailNull_thenExceptionThrown() {
+//        UserDto newUserDto = UserDto.builder().name("user").build();
+//
+//        assertThrows(ConstraintViolationException.class, () -> userService.addUser(newUserDto));
+//    }
 
-    @Test
-    void addUser_whenEmailNull_thenExceptionThrown() {
-        UserDto newUserDto = UserDto.builder().name("user").build();
-
-        assertThrows(ConstraintViolationException.class, () -> userService.addUser(newUserDto));
-    }
-
-    @Test
-    void addUser_whenEmailInvalid_thenExceptionThrown() {
-        UserDto newUserDto = UserDto.builder().name("user").email("user-yandex.ru").build();
-
-        assertThrows(ConstraintViolationException.class, () -> userService.addUser(newUserDto));
-    }
+//    @Test
+//    void addUser_whenEmailInvalid_thenExceptionThrown() {
+//        UserDto newUserDto = UserDto.builder().name("user").email("user-yandex.ru").build();
+//
+//        assertThrows(ConstraintViolationException.class, () -> userService.addUser(newUserDto));
+//    }
 
     @Test
     void updateUserData_whenUserValid_thenUserUpdated() {
