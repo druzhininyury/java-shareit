@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Validated
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
@@ -44,7 +43,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDto addItem(@Valid ItemDto itemDto, long userId) {
+    public ItemDto addItem(ItemDto itemDto, long userId) {
         User owner = userRepository.findById(userId).orElseThrow(() ->
                 new NoSuchUserException("Can't add item, no user found with id=" + userId));
         Item item = ItemMapper.toItem(itemDto, owner);
@@ -112,7 +111,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllItemsByUserId(long userId, @PositiveOrZero long from, @Positive long size) {
+    public List<ItemDto> getAllItemsByUserId(long userId, long from, long size) {
         User owner = userRepository.findById(userId).orElseThrow(() ->
                 new NoSuchUserException("There is no user with id = " + userId));
         PageRequest pageRequest = PageRequest.of((int) (from / size), (int) size);
@@ -141,7 +140,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllItemsWithText(String text, @PositiveOrZero long from, @Positive long size) {
+    public List<ItemDto> getAllItemsWithText(String text, long from, long size) {
         if (text.isBlank()) {
             return List.of();
         }
@@ -151,7 +150,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public CommentDto addComment(long userId, long itemId, @Valid CommentDto commentDto) {
+    public CommentDto addComment(long userId, long itemId, CommentDto commentDto) {
         User author = userRepository.findById(userId).orElseThrow(() ->
                 new NoSuchUserException("There is no user with id = " + userId));
         Item item = itemRepository.findById(itemId).orElseThrow(() ->
