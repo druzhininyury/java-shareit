@@ -15,6 +15,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -53,6 +54,9 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getAllItemsWithText(String text, @PositiveOrZero long from, @Positive long size) {
+        if (text == null || text.isBlank()) {
+            return ResponseEntity.ok(List.of());
+        }
         Map<String, Object> parameters = Map.of(
                 "text", text,
                 "from", from,
