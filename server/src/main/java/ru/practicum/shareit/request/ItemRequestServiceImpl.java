@@ -6,13 +6,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.HasNotSavedException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
-import ru.practicum.shareit.request.exception.ItemRequestHasNotSavedException;
 import ru.practicum.shareit.request.exception.NoSuchItemRequestException;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserRepository;
@@ -42,7 +42,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         try {
             return ItemRequestMapper.mapToItemRequestDto(itemRequestRepository.save(itemRequest), List.of());
         } catch (DataIntegrityViolationException e) {
-            throw new ItemRequestHasNotSavedException("Item hasn't been created: " + itemRequestDto);
+            throw new HasNotSavedException("Item hasn't been created: " + itemRequestDto);
         }
     }
 

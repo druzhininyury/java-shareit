@@ -7,9 +7,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exception.HasNotSavedException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.exception.ItemRequestHasNotSavedException;
 import ru.practicum.shareit.request.exception.NoSuchItemRequestException;
 import ru.practicum.shareit.user.exception.NoSuchUserException;
 
@@ -90,7 +90,7 @@ public class ItemRequestControllerTest {
         long requesterId = 2L;
 
         when(itemRequestService.addItemRequest(anyLong(), any(ItemRequestDto.class)))
-                .thenThrow(new ItemRequestHasNotSavedException("Error"));
+                .thenThrow(new HasNotSavedException("Error"));
 
         mvc.perform(post("/requests")
                         .content(mapper.writeValueAsString(new ItemRequestDto()))

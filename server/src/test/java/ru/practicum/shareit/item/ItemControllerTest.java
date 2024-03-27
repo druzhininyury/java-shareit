@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exception.HasNotSavedException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.exception.*;
@@ -133,7 +134,7 @@ public class ItemControllerTest {
     void addItem_ItemHasNotSavedExceptionTest() throws Exception {
         long userId = 1L;
 
-        when(itemService.addItem(any(ItemDto.class), anyLong())).thenThrow(new ItemHasNotSavedException("Error"));
+        when(itemService.addItem(any(ItemDto.class), anyLong())).thenThrow(new HasNotSavedException("Error"));
 
         mvc.perform(post("/items")
                         .content(mapper.writeValueAsString(itemDtoIn))
@@ -207,7 +208,7 @@ public class ItemControllerTest {
         long userId = 1L;
 
         when(itemService.updateItemData(any(ItemDto.class), anyLong(), anyLong()))
-                .thenThrow(new ItemHasNotSavedException("Error"));
+                .thenThrow(new HasNotSavedException("Error"));
 
         mvc.perform(patch("/items/{itemId}", itemId)
                         .content(mapper.writeValueAsString(itemDtoUpdatedIn))

@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.exception.HasNotSavedException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -103,7 +104,7 @@ public class ItemServiceImplTest {
         when(itemRepository.save(any(Item.class)))
                 .thenThrow(new DataIntegrityViolationException("Database error."));
 
-        assertThrows(ItemHasNotSavedException.class,
+        assertThrows(HasNotSavedException.class,
                 () -> itemService.addItem(newItemDto, userId));
     }
 
@@ -269,7 +270,7 @@ public class ItemServiceImplTest {
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(getItem));
         when(itemRepository.save(any(Item.class))).thenThrow(new DataIntegrityViolationException("Database error."));
 
-        assertThrows(ItemHasNotSavedException.class, () -> itemService.updateItemData(itemDtoToUpdate, itemId, userId));
+        assertThrows(HasNotSavedException.class, () -> itemService.updateItemData(itemDtoToUpdate, itemId, userId));
     }
 
     @Test

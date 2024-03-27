@@ -6,9 +6,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
+import ru.practicum.shareit.exception.HasNotSavedException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.exception.NoSuchUserException;
-import ru.practicum.shareit.user.exception.UserHasNotSavedException;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -53,7 +53,7 @@ public class UserServiceImplTest {
         when(userRepository.save(any(User.class)))
                 .thenThrow(new DataIntegrityViolationException("Database error."));
 
-        assertThrows(UserHasNotSavedException.class, () -> userService.addUser(newUserDto));
+        assertThrows(HasNotSavedException.class, () -> userService.addUser(newUserDto));
     }
 
     @Test
@@ -84,7 +84,7 @@ public class UserServiceImplTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenThrow(new DataIntegrityViolationException("Database error."));
 
-        assertThrows(UserHasNotSavedException.class, () -> userService.updateUserData(toUpdateUserDto, userId));
+        assertThrows(HasNotSavedException.class, () -> userService.updateUserData(toUpdateUserDto, userId));
     }
 
     @Test

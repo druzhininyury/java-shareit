@@ -7,11 +7,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
+import ru.practicum.shareit.exception.HasNotSavedException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.exception.ItemRequestHasNotSavedException;
 import ru.practicum.shareit.request.exception.NoSuchItemRequestException;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserRepository;
@@ -95,7 +95,7 @@ public class ItemRequestServiceImplTest {
         when(itemRequestRepository.save(any(ItemRequest.class)))
                 .thenThrow(new DataIntegrityViolationException("Database error."));
 
-        assertThrows(ItemRequestHasNotSavedException.class,
+        assertThrows(HasNotSavedException.class,
                 () -> itemRequestService.addItemRequest(requesterId, newItemRequestDto));
     }
 

@@ -11,6 +11,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingDto;
 import ru.practicum.shareit.booking.exception.*;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.exception.HasNotSavedException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDtoIdName;
 import ru.practicum.shareit.item.exception.ItemIsNotAvailableException;
@@ -128,7 +129,7 @@ public class BookingServiceImplTest {
         when(bookingRepository.save(any(Booking.class)))
                 .thenThrow(new DataIntegrityViolationException("Database error."));
 
-        assertThrows(BookingHasNotSavedException.class,
+        assertThrows(HasNotSavedException.class,
                 () -> bookingService.addBooking(newBookingDto, bookerId));
     }
 
@@ -314,7 +315,7 @@ public class BookingServiceImplTest {
         when(bookingRepository.save(any(Booking.class)))
                 .thenThrow(new DataIntegrityViolationException("Database error."));
 
-        assertThrows(BookingHasNotSavedException.class,
+        assertThrows(HasNotSavedException.class,
                 () -> bookingService.approveOrRejectBooking(bookingId, ownerId, true));
     }
 

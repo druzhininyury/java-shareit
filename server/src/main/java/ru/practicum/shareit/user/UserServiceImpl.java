@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.HasNotSavedException;
 import ru.practicum.shareit.user.exception.NoSuchUserException;
-import ru.practicum.shareit.user.exception.UserHasNotSavedException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
             User user = userRepository.save(UserMapper.mapToUser(userDto));
             return UserMapper.mapToUserDto(user);
         } catch (DataIntegrityViolationException e) {
-            throw new UserHasNotSavedException("User hasn't been created: " + userDto);
+            throw new HasNotSavedException("User hasn't been created: " + userDto);
         }
     }
 
@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
         try {
             return UserMapper.mapToUserDto(userRepository.save(user));
         } catch (DataIntegrityViolationException e) {
-            throw new UserHasNotSavedException("User with id = " + userId + " hasn't been updated: " + userDto);
+            throw new HasNotSavedException("User with id = " + userId + " hasn't been updated: " + userDto);
         }
     }
 

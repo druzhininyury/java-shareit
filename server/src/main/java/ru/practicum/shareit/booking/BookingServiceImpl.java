@@ -11,6 +11,7 @@ import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.dto.NewBookingDto;
 import ru.practicum.shareit.booking.exception.*;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.exception.HasNotSavedException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.exception.ItemIsNotAvailableException;
 import ru.practicum.shareit.item.exception.NoSuchItemException;
@@ -52,7 +53,7 @@ public class BookingServiceImpl implements BookingService {
         try {
             return BookingMapper.mapToBookingDto(bookingRepository.save(booking));
         } catch (DataIntegrityViolationException e) {
-            throw new BookingHasNotSavedException("Booking hasn't been created: " + newBookingDto);
+            throw new HasNotSavedException("Booking hasn't been created: " + newBookingDto);
         }
     }
 
@@ -71,7 +72,7 @@ public class BookingServiceImpl implements BookingService {
         try {
             return BookingMapper.mapToBookingDto(bookingRepository.save(booking));
         } catch (DataIntegrityViolationException e) {
-            throw new BookingHasNotSavedException("Booking (id = " + bookingId + ") hasn't been approve/rejected");
+            throw new HasNotSavedException("Booking (id = " + bookingId + ") hasn't been approve/rejected");
         }
     }
 

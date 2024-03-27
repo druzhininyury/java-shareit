@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.exception.HasNotSavedException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentMapper;
 import ru.practicum.shareit.item.exception.*;
@@ -52,7 +53,7 @@ public class ItemServiceImpl implements ItemService {
         try {
             return ItemMapper.toItemDto(itemRepository.save(item));
         } catch (DataIntegrityViolationException e) {
-            throw new ItemHasNotSavedException("Item hasn't been created: " + itemDto);
+            throw new HasNotSavedException("Item hasn't been created: " + itemDto);
         }
     }
 
@@ -76,7 +77,7 @@ public class ItemServiceImpl implements ItemService {
         try {
             return ItemMapper.toItemDto(itemRepository.save(item));
         } catch (DataIntegrityViolationException e) {
-            throw new ItemHasNotSavedException("Item hasn't been updated: " + itemDto);
+            throw new HasNotSavedException("Item hasn't been updated: " + itemDto);
         }
     }
 
