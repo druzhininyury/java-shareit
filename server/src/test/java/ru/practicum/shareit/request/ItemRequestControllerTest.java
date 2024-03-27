@@ -8,10 +8,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.exception.HasNotSavedException;
+import ru.practicum.shareit.exception.NoSuchEntityException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.exception.NoSuchItemRequestException;
-import ru.practicum.shareit.user.exception.NoSuchUserException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -74,7 +73,7 @@ public class ItemRequestControllerTest {
         long requesterId = 2L;
 
         when(itemRequestService.addItemRequest(anyLong(), any(ItemRequestDto.class)))
-                .thenThrow(new NoSuchUserException("Error"));
+                .thenThrow(new NoSuchEntityException("Error"));
 
         mvc.perform(post("/requests")
                         .content(mapper.writeValueAsString(new ItemRequestDto()))
@@ -144,7 +143,7 @@ public class ItemRequestControllerTest {
         long requestId = 1L;
         long itemId = 1L;
 
-        when(itemRequestService.getItemRequestsByOwner(anyLong())).thenThrow(new NoSuchUserException("Error"));
+        when(itemRequestService.getItemRequestsByOwner(anyLong())).thenThrow(new NoSuchEntityException("Error"));
 
         mvc.perform(get("/requests")
                         .header("X-Sharer-User-Id", requesterId)
@@ -199,7 +198,7 @@ public class ItemRequestControllerTest {
         long size = 10;
 
         when(itemRequestService.getItemRequestsAllButOwner(anyLong(), anyLong(), anyLong()))
-                .thenThrow(new NoSuchUserException("Error"));
+                .thenThrow(new NoSuchEntityException("Error"));
 
         mvc.perform(get("/requests/all?from={from}&size={size}", from, size)
                         .header("X-Sharer-User-Id", requesterId)
@@ -248,7 +247,7 @@ public class ItemRequestControllerTest {
         long requesterId = 2L;
         long requestId = 1L;
 
-        when(itemRequestService.getItemRequestById(anyLong(), anyLong())).thenThrow(new NoSuchUserException("Error"));
+        when(itemRequestService.getItemRequestById(anyLong(), anyLong())).thenThrow(new NoSuchEntityException("Error"));
 
         mvc.perform(get("/requests/{requestId}", requestId)
                         .header("X-Sharer-User-Id", requesterId)
@@ -262,7 +261,7 @@ public class ItemRequestControllerTest {
         long requestId = 1L;
 
         when(itemRequestService.getItemRequestById(anyLong(), anyLong()))
-                .thenThrow(new NoSuchItemRequestException("Error"));
+                .thenThrow(new NoSuchEntityException("Error"));
 
         mvc.perform(get("/requests/{requestId}", requestId)
                         .header("X-Sharer-User-Id", requesterId)

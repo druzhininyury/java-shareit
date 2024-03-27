@@ -12,14 +12,13 @@ import ru.practicum.shareit.booking.dto.NewBookingDto;
 import ru.practicum.shareit.booking.exception.*;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.HasNotSavedException;
+import ru.practicum.shareit.exception.NoSuchEntityException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDtoIdName;
 import ru.practicum.shareit.item.exception.ItemIsNotAvailableException;
-import ru.practicum.shareit.item.exception.NoSuchItemException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.dto.UserDtoId;
-import ru.practicum.shareit.user.exception.NoSuchUserException;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -158,7 +157,7 @@ public class BookingServiceImplTest {
 
         when(userRepository.findById(bookerId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchUserException.class, () -> bookingService.addBooking(newBookingDto,  bookerId));
+        assertThrows(NoSuchEntityException.class, () -> bookingService.addBooking(newBookingDto,  bookerId));
     }
 
     @Test
@@ -175,7 +174,7 @@ public class BookingServiceImplTest {
         when(userRepository.findById(bookerId)).thenReturn(Optional.of(booker));
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchItemException.class, () -> bookingService.addBooking(newBookingDto,  bookerId));
+        assertThrows(NoSuchEntityException.class, () -> bookingService.addBooking(newBookingDto,  bookerId));
     }
 
     @Test
@@ -326,7 +325,7 @@ public class BookingServiceImplTest {
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchBookingException.class,
+        assertThrows(NoSuchEntityException.class,
                 () -> bookingService.approveOrRejectBooking(bookingId, ownerId, true));
     }
 
@@ -430,7 +429,7 @@ public class BookingServiceImplTest {
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchBookingException.class, () -> bookingService.getBookingById(bookingId, ownerId));
+        assertThrows(NoSuchEntityException.class, () -> bookingService.getBookingById(bookingId, ownerId));
     }
 
     @Test
@@ -523,7 +522,7 @@ public class BookingServiceImplTest {
 
         when(userRepository.findById(bookerId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchUserException.class,
+        assertThrows(NoSuchEntityException.class,
                 () -> bookingService.getAllBookingsByUser(bookerId, state, from, size));
     }
 
@@ -589,7 +588,7 @@ public class BookingServiceImplTest {
 
         when(userRepository.findById(ownerId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchUserException.class,
+        assertThrows(NoSuchEntityException.class,
                 () -> bookingService.getAllBookingsAllItemsByOwner(ownerId, state, from, size));
     }
 

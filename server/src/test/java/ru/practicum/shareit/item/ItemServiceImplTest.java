@@ -11,6 +11,7 @@ import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.HasNotSavedException;
+import ru.practicum.shareit.exception.NoSuchEntityException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -19,10 +20,8 @@ import ru.practicum.shareit.item.exception.*;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequestRepository;
-import ru.practicum.shareit.request.exception.NoSuchItemRequestException;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.exception.NoSuchUserException;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -163,7 +162,7 @@ public class ItemServiceImplTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchUserException.class, () -> itemService.addItem(newItemDto, userId));
+        assertThrows(NoSuchEntityException.class, () -> itemService.addItem(newItemDto, userId));
     }
 
     @Test
@@ -185,7 +184,7 @@ public class ItemServiceImplTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(itemRequestRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchItemRequestException.class, () -> itemService.addItem(newItemDto, userId));
+        assertThrows(NoSuchEntityException.class, () -> itemService.addItem(newItemDto, userId));
     }
 
     @Test
@@ -283,7 +282,7 @@ public class ItemServiceImplTest {
 
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchItemException.class, () -> itemService.updateItemData(itemDtoToUpdate, itemId, userId));
+        assertThrows(NoSuchEntityException.class, () -> itemService.updateItemData(itemDtoToUpdate, itemId, userId));
     }
 
     @Test
@@ -436,7 +435,7 @@ public class ItemServiceImplTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchUserException.class, () -> itemService.getItemById(userId, itemId));
+        assertThrows(NoSuchEntityException.class, () -> itemService.getItemById(userId, itemId));
     }
 
     @Test
@@ -448,7 +447,7 @@ public class ItemServiceImplTest {
                 .thenReturn(Optional.of(new User(userId, "user", "user@yandex.ru")));
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchItemException.class, () -> itemService.getItemById(userId, itemId));
+        assertThrows(NoSuchEntityException.class, () -> itemService.getItemById(userId, itemId));
     }
 
     @Test
@@ -494,7 +493,7 @@ public class ItemServiceImplTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchUserException.class, () -> itemService.getAllItemsByUserId(userId, from, size));
+        assertThrows(NoSuchEntityException.class, () -> itemService.getAllItemsByUserId(userId, from, size));
     }
 
     @Test
@@ -657,7 +656,7 @@ public class ItemServiceImplTest {
         when(commentRepository.save(any(Comment.class)))
                 .thenThrow(new DataIntegrityViolationException("Database error"));
 
-        assertThrows(CommentHasNotSavedException.class,
+        assertThrows(HasNotSavedException.class,
                 () -> itemService.addComment(authorId, itemId, newCommentDto));
     }
 
@@ -671,7 +670,7 @@ public class ItemServiceImplTest {
 
         when(userRepository.findById(authorId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchUserException.class, () -> itemService.addComment(authorId, itemId, newCommentDto));
+        assertThrows(NoSuchEntityException.class, () -> itemService.addComment(authorId, itemId, newCommentDto));
     }
 
     @Test
@@ -690,7 +689,7 @@ public class ItemServiceImplTest {
         when(userRepository.findById(authorId)).thenReturn(Optional.of(author));
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchItemException.class, () -> itemService.addComment(authorId, itemId, newCommentDto));
+        assertThrows(NoSuchEntityException.class, () -> itemService.addComment(authorId, itemId, newCommentDto));
     }
 
     @Test

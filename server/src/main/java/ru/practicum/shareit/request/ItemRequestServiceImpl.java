@@ -7,16 +7,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.HasNotSavedException;
+import ru.practicum.shareit.exception.NoSuchEntityException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
-import ru.practicum.shareit.request.exception.NoSuchItemRequestException;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.exception.NoSuchUserException;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -36,7 +35,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Transactional
     public ItemRequestDto addItemRequest(long userId, ItemRequestDto itemRequestDto) {
         User user = userRepository.findById(userId).orElseThrow(() ->
-                new NoSuchUserException("There is no user with id = " + userId));
+                new NoSuchEntityException("There is no user with id = " + userId));
         itemRequestDto.setCreated(LocalDateTime.now());
         ItemRequest itemRequest = ItemRequestMapper.mapToItemRequest(itemRequestDto, user);
         try {
@@ -49,7 +48,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequestDto> getItemRequestsByOwner(long userId) {
         User user = userRepository.findById(userId).orElseThrow(() ->
-                new NoSuchUserException("There is no user with id = " + userId));
+                new NoSuchEntityException("There is no user with id = " + userId));
         List<ItemRequest> itemRequests = itemRequestRepository.findAllByRequesterIdOrderByCreatedDesc(userId);
         List<Long> itemRequestIds = itemRequests.stream().map(ItemRequest::getId).collect(Collectors.toList());
         List<ItemRequestDto> itemRequestDtos = itemRequests.stream().map(ItemRequestMapper::mapToItemRequestDto)
@@ -67,7 +66,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequestDto> getItemRequestsAllButOwner(long userId, long from, long size) {
         User user = userRepository.findById(userId).orElseThrow(() ->
-                new NoSuchUserException("There is no user with id = " + userId));
+                new NoSuchEntityException("There is no user with id = " + userId));
         List<ItemRequest> itemRequests = itemRequestRepository.findAllByRequesterIdIsNot(userId,
                 PageRequest.of((int) (from / size), (int) size, Sort.by(Sort.Direction.DESC, "created")));
         List<Long> itemRequestIds = itemRequests.stream().map(ItemRequest::getId).collect(Collectors.toList());
@@ -86,9 +85,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public ItemRequestDto getItemRequestById(long userId, long requestId) {
         User user = userRepository.findById(userId).orElseThrow(() ->
-                new NoSuchUserException("There is no user with id = " + userId));
+                new NoSuchEntityException("There is no user with id = " + userId));
         ItemRequest itemRequest = itemRequestRepository.findById(requestId).orElseThrow(() ->
-                new NoSuchItemRequestException("There is no item request with id = " + requestId));
+                new NoSuchEntityException("There is no item request with id = " + requestId));
         List<ItemDto> itemDtos = ItemMapper.toItemDto(itemRepository.findAllByRequestId(requestId));
         ItemRequestDto itemRequestDto = ItemRequestMapper.mapToItemRequestDto(itemRequest, itemDtos);
         return itemRequestDto;

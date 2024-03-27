@@ -8,14 +8,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.exception.HasNotSavedException;
+import ru.practicum.shareit.exception.NoSuchEntityException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.exception.NoSuchItemRequestException;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.exception.NoSuchUserException;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -109,7 +108,7 @@ public class ItemRequestServiceImplTest {
 
         when(userRepository.findById(requesterId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchUserException.class, () -> itemRequestService.addItemRequest(requesterId, newItemRequestDto));
+        assertThrows(NoSuchEntityException.class, () -> itemRequestService.addItemRequest(requesterId, newItemRequestDto));
     }
 
     @Test
@@ -165,7 +164,7 @@ public class ItemRequestServiceImplTest {
 
         when(userRepository.findById(requesterId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchUserException.class, () -> itemRequestService.getItemRequestsByOwner(requesterId));
+        assertThrows(NoSuchEntityException.class, () -> itemRequestService.getItemRequestsByOwner(requesterId));
     }
 
     @Test
@@ -227,7 +226,7 @@ public class ItemRequestServiceImplTest {
 
         when(userRepository.findById(requesterId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchUserException.class,
+        assertThrows(NoSuchEntityException.class,
                 () -> itemRequestService.getItemRequestsAllButOwner(requesterId, from, size));
     }
 
@@ -284,7 +283,7 @@ public class ItemRequestServiceImplTest {
 
         when(userRepository.findById(requesterId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchUserException.class, () -> itemRequestService.getItemRequestById(requesterId, requestId));
+        assertThrows(NoSuchEntityException.class, () -> itemRequestService.getItemRequestById(requesterId, requestId));
     }
 
     @Test
@@ -296,7 +295,7 @@ public class ItemRequestServiceImplTest {
         when(userRepository.findById(requesterId)).thenReturn(Optional.of(requester));
         when(itemRequestRepository.findById(requestId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchItemRequestException.class,
+        assertThrows(NoSuchEntityException.class,
                 () -> itemRequestService.getItemRequestById(requesterId, requestId));
     }
 }

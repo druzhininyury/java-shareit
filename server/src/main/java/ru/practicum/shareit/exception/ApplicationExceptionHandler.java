@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.booking.exception.*;
 import ru.practicum.shareit.item.exception.*;
-import ru.practicum.shareit.request.exception.NoSuchItemRequestException;
-import ru.practicum.shareit.user.exception.NoSuchUserException;
 
 import javax.validation.ConstraintViolationException;
 
@@ -59,45 +57,10 @@ public class ApplicationExceptionHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleCommentHasNotSavedException(CommentHasNotSavedException e) {
-        log.warn(e.getMessage());
-        return new ErrorResponse("Comment hasn't been saved.", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNoSuchBookingException(NoSuchBookingException e) {
-        log.warn(e.getMessage());
-        return new ErrorResponse("No such booking exists.", e.getMessage());
-    }
-
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleConstraintViolationException(ConstraintViolationException e) {
         log.warn(e.getMessage());
         return new ErrorResponse("Provided email is invalid.", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNoSuchUserException(NoSuchUserException e) {
-        log.warn(e.getMessage());
-        return new ErrorResponse("No such user exists.", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNoSuchItemRequestException(NoSuchItemRequestException e) {
-        log.warn(e.getMessage());
-        return new ErrorResponse("No such item request exists.", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNoSuchItemException(NoSuchItemException e) {
-        log.warn(e.getMessage());
-        return new ErrorResponse("No such item exists.", e.getMessage());
     }
 
     @ExceptionHandler
@@ -112,6 +75,13 @@ public class ApplicationExceptionHandler {
     public ErrorResponse handleHasNotSavedException(HasNotSavedException e) {
         log.warn(e.getMessage());
         return new ErrorResponse("Entity hasn't been saved.", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNoSuchEntityException(NoSuchEntityException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("No such entity exists.", e.getMessage());
     }
 
     @ExceptionHandler

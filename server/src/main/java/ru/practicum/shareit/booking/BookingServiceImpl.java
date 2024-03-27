@@ -12,12 +12,11 @@ import ru.practicum.shareit.booking.dto.NewBookingDto;
 import ru.practicum.shareit.booking.exception.*;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.HasNotSavedException;
+import ru.practicum.shareit.exception.NoSuchEntityException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.exception.ItemIsNotAvailableException;
-import ru.practicum.shareit.item.exception.NoSuchItemException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.exception.NoSuchUserException;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -39,9 +38,9 @@ public class BookingServiceImpl implements BookingService {
             throw new InvalidStartEndDatesException("End date is equal or less than start date.");
         }
         User user = userRepository.findById(userId).orElseThrow(() ->
-                new NoSuchUserException("There is no user with id = " + userId));
+                new NoSuchEntityException("There is no user with id = " + userId));
         Item item = itemRepository.findById(newBookingDto.getItemId()).orElseThrow(() ->
-                new NoSuchItemException("There is no item with id = " + newBookingDto.getItemId()));
+                new NoSuchEntityException("There is no item with id = " + newBookingDto.getItemId()));
         if (item.getOwner().getId() == userId) {
             throw new NotBookingRelationException("User (id = " + userId + ") can't book item (id = "
                     + item.getId() + ") because he doesn't own it");
@@ -60,7 +59,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingDto approveOrRejectBooking(long bookingId, long userId, boolean approved) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
-                new NoSuchBookingException("There is no booking with id = " + bookingId));
+                new NoSuchEntityException("There is no booking with id = " + bookingId));
         if (booking.getItem().getOwner().getId() != userId) {
             throw new NotBookingRelationException("User (id = " + userId + ") can't approve item (id = "
                     + booking.getItem().getId() + ") because not being owner.");
@@ -78,7 +77,7 @@ public class BookingServiceImpl implements BookingService {
 
     public BookingDto getBookingById(long bookingId, long userId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
-                new NoSuchBookingException("There is no booking with id = " + bookingId));
+                new NoSuchEntityException("There is no booking with id = " + bookingId));
         if (booking.getBooker().getId() != userId && booking.getItem().getOwner().getId() != userId) {
             throw new NotBookingRelationException("User (id = " + userId
                     + ") has no relation booker to booking (id = " + bookingId + ")");
@@ -95,7 +94,7 @@ public class BookingServiceImpl implements BookingService {
             throw new InvalidStateException("Unknown state: " + state);
         }
         User booker = userRepository.findById(userId).orElseThrow(() ->
-                new NoSuchUserException("There is no user with id = " + userId));
+                new NoSuchEntityException("There is no user with id = " + userId));
         List<Booking> bookings;
         Sort sortByStartDesc = Sort.by(Sort.Direction.DESC, "start");
         PageRequest pageRequest = PageRequest.of((int) (from / size), (int) size, sortByStartDesc);
@@ -134,7 +133,7 @@ public class BookingServiceImpl implements BookingService {
             throw new InvalidStateException("Unknown state: " + state);
         }
         User owner = userRepository.findById(userId).orElseThrow(() ->
-                new NoSuchUserException("There is no user with id = " + userId));
+                new NoSuchEntityException("There is no user with id = " + userId));
         List<Booking> bookings;
         Sort sortByStartDesc = Sort.by(Sort.Direction.DESC, "start");
         PageRequest pageRequest = PageRequest.of((int) (from / size), (int) size, sortByStartDesc);

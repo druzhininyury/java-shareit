@@ -9,8 +9,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.exception.HasNotSavedException;
+import ru.practicum.shareit.exception.NoSuchEntityException;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.exception.NoSuchUserException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -106,7 +106,7 @@ public class UserControllerTest {
     @Test
     void updateUserData_whenNoSuchUserExceptionTest() throws Exception {
         when(mockUserService.updateUserData(any(UserDto.class), anyLong()))
-                .thenThrow(new NoSuchUserException("Error"));
+                .thenThrow(new NoSuchEntityException("Error"));
         mvc.perform(patch("/users/1")
                         .content(mapper.writeValueAsString(userDtoUpdateIn))
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -153,7 +153,7 @@ public class UserControllerTest {
     @Test
     void getUserByIdTest_whenNoSuchUserExceptionTest() throws Exception {
         when(mockUserService.getUserById(anyLong()))
-                .thenThrow(new NoSuchUserException("Error"));
+                .thenThrow(new NoSuchEntityException("Error"));
         mvc.perform(get("/users/1")
                         .content(mapper.writeValueAsString(userDtoUpdateIn))
                         .characterEncoding(StandardCharsets.UTF_8)

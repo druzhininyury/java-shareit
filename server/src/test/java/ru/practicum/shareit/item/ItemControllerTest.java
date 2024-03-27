@@ -9,11 +9,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.exception.HasNotSavedException;
+import ru.practicum.shareit.exception.NoSuchEntityException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.exception.*;
-import ru.practicum.shareit.request.exception.NoSuchItemRequestException;
-import ru.practicum.shareit.user.exception.NoSuchUserException;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -104,7 +103,7 @@ public class ItemControllerTest {
     void addItem_NoSuchUserExceptionTest() throws Exception {
         long userId = 1L;
 
-        when(itemService.addItem(any(ItemDto.class), anyLong())).thenThrow(new NoSuchUserException("Error"));
+        when(itemService.addItem(any(ItemDto.class), anyLong())).thenThrow(new NoSuchEntityException("Error"));
 
         mvc.perform(post("/items")
                         .content(mapper.writeValueAsString(itemDtoIn))
@@ -119,7 +118,7 @@ public class ItemControllerTest {
     void addItem_NoSuchItemRequestExceptionTest() throws Exception {
         long userId = 1L;
 
-        when(itemService.addItem(any(ItemDto.class), anyLong())).thenThrow(new NoSuchItemRequestException("Error"));
+        when(itemService.addItem(any(ItemDto.class), anyLong())).thenThrow(new NoSuchEntityException("Error"));
 
         mvc.perform(post("/items")
                         .content(mapper.writeValueAsString(itemDtoIn))
@@ -174,7 +173,7 @@ public class ItemControllerTest {
         long userId = 1L;
 
         when(itemService.updateItemData(any(ItemDto.class), anyLong(), anyLong()))
-                .thenThrow(new NoSuchItemException("Error"));
+                .thenThrow(new NoSuchEntityException("Error"));
 
         mvc.perform(patch("/items/{itemId}", itemId)
                         .content(mapper.writeValueAsString(itemDtoUpdatedIn))
@@ -244,7 +243,7 @@ public class ItemControllerTest {
         long itemId = 1L;
         long userId = 1L;
 
-        when(itemService.getItemById(anyLong(), anyLong())).thenThrow(new NoSuchUserException("Error"));
+        when(itemService.getItemById(anyLong(), anyLong())).thenThrow(new NoSuchEntityException("Error"));
 
         mvc.perform(get("/items/{itemId}", itemId)
                         .header("X-Sharer-User-Id", userId)
@@ -257,7 +256,7 @@ public class ItemControllerTest {
         long itemId = 1L;
         long userId = 1L;
 
-        when(itemService.getItemById(anyLong(), anyLong())).thenThrow(new NoSuchItemException("Error"));
+        when(itemService.getItemById(anyLong(), anyLong())).thenThrow(new NoSuchEntityException("Error"));
 
         mvc.perform(get("/items/{itemId}", itemId)
                         .header("X-Sharer-User-Id", userId)
@@ -293,7 +292,7 @@ public class ItemControllerTest {
         long size = 10;
 
         when(itemService.getAllItemsByUserId(anyLong(), anyLong(), anyLong()))
-                .thenThrow(new NoSuchUserException("Error"));
+                .thenThrow(new NoSuchEntityException("Error"));
 
         mvc.perform(get("/items?from={from}&size={size}", from, size)
                         .header("X-Sharer-User-Id", userId)
@@ -350,7 +349,7 @@ public class ItemControllerTest {
         long itemId = 1;
 
         when(itemService.addComment(anyLong(), anyLong(), any(CommentDto.class)))
-                .thenThrow(new NoSuchUserException("Error"));
+                .thenThrow(new NoSuchEntityException("Error"));
 
         mvc.perform(post("/items/{itemId}/comment", itemId)
                         .content(mapper.writeValueAsString(commentDtoIn))
@@ -367,7 +366,7 @@ public class ItemControllerTest {
         long itemId = 1;
 
         when(itemService.addComment(anyLong(), anyLong(), any(CommentDto.class)))
-                .thenThrow(new NoSuchItemException("Error"));
+                .thenThrow(new NoSuchEntityException("Error"));
 
         mvc.perform(post("/items/{itemId}/comment", itemId)
                         .content(mapper.writeValueAsString(commentDtoIn))
@@ -401,7 +400,7 @@ public class ItemControllerTest {
         long itemId = 1;
 
         when(itemService.addComment(anyLong(), anyLong(), any(CommentDto.class)))
-                .thenThrow(new CommentHasNotSavedException("Error"));
+                .thenThrow(new HasNotSavedException("Error"));
 
         mvc.perform(post("/items/{itemId}/comment", itemId)
                         .content(mapper.writeValueAsString(commentDtoIn))

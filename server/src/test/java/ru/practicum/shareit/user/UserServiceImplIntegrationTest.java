@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.NoSuchEntityException;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.exception.NoSuchUserException;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -116,7 +116,7 @@ public class UserServiceImplIntegrationTest {
     void deleteUserById_whenInvoked_thenUserDeleted() {
         userService.deleteUserById(user1.getId());
 
-        assertThrows(NoSuchUserException.class, () -> userService.getUserById(user1.getId()));
+        assertThrows(NoSuchEntityException.class, () -> userService.getUserById(user1.getId()));
     }
 
 }

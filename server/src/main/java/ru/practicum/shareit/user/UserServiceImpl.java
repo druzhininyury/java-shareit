@@ -5,7 +5,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.HasNotSavedException;
-import ru.practicum.shareit.user.exception.NoSuchUserException;
+import ru.practicum.shareit.exception.NoSuchEntityException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto updateUserData(UserDto userDto, long userId) {
         User user = userRepository.findById(userId).orElseThrow(() ->
-                new NoSuchUserException("No user found with id = " + userId));
+                new NoSuchEntityException("No user found with id = " + userId));
         if (userDto.getName() != null) {
             user.setName(userDto.getName());
         }
@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserById(long userId) {
         return UserMapper.mapToUserDto(userRepository.findById(userId).orElseThrow(() ->
-                new NoSuchUserException("User with id=" + userId + " doesn't exist.")));
+                new NoSuchEntityException("User with id=" + userId + " doesn't exist.")));
     }
 
     @Override

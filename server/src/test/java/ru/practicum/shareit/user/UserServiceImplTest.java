@@ -7,8 +7,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 import ru.practicum.shareit.exception.HasNotSavedException;
+import ru.practicum.shareit.exception.NoSuchEntityException;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.exception.NoSuchUserException;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -94,7 +94,7 @@ public class UserServiceImplTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchUserException.class, () -> userService.updateUserData(toUpdateUserDto, userId));
+        assertThrows(NoSuchEntityException.class, () -> userService.updateUserData(toUpdateUserDto, userId));
     }
 
     @Test
@@ -129,7 +129,7 @@ public class UserServiceImplTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchUserException.class, () -> userService.getUserById(userId));
+        assertThrows(NoSuchEntityException.class, () -> userService.getUserById(userId));
     }
 
     @Test

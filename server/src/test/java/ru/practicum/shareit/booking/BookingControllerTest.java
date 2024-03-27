@@ -12,11 +12,10 @@ import ru.practicum.shareit.booking.dto.NewBookingDto;
 import ru.practicum.shareit.booking.exception.*;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.HasNotSavedException;
+import ru.practicum.shareit.exception.NoSuchEntityException;
 import ru.practicum.shareit.item.dto.ItemDtoIdName;
 import ru.practicum.shareit.item.exception.ItemIsNotAvailableException;
-import ru.practicum.shareit.item.exception.NoSuchItemException;
 import ru.practicum.shareit.user.dto.UserDtoId;
-import ru.practicum.shareit.user.exception.NoSuchUserException;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -102,7 +101,7 @@ public class BookingControllerTest {
         long bookerId = 2L;
 
         when(bookingService.addBooking(any(NewBookingDto.class), anyLong()))
-                .thenThrow(new NoSuchUserException("Error"));
+                .thenThrow(new NoSuchEntityException("Error"));
 
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(new NewBookingDto()))
@@ -118,7 +117,7 @@ public class BookingControllerTest {
         long bookerId = 2L;
 
         when(bookingService.addBooking(any(NewBookingDto.class), anyLong()))
-                .thenThrow(new NoSuchItemException("Error"));
+                .thenThrow(new NoSuchEntityException("Error"));
 
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(new NewBookingDto()))
@@ -215,7 +214,7 @@ public class BookingControllerTest {
         long ownerId = 1L;
 
         when(bookingService.approveOrRejectBooking(anyLong(), anyLong(), anyBoolean()))
-                .thenThrow(new NoSuchBookingException("Error"));
+                .thenThrow(new NoSuchEntityException("Error"));
 
         mvc.perform(patch("/bookings/{bookingId}?approved=true", bookingId)
                         .header("X-Sharer-User-Id", ownerId)
@@ -302,7 +301,7 @@ public class BookingControllerTest {
         long bookingId = 1L;
         long ownerId = 1L;
 
-        when(bookingService.getBookingById(anyLong(), anyLong())).thenThrow(new NoSuchBookingException("Error"));
+        when(bookingService.getBookingById(anyLong(), anyLong())).thenThrow(new NoSuchEntityException("Error"));
 
         mvc.perform(get("/bookings/{bookingId}", bookingId)
                         .header("X-Sharer-User-Id", ownerId)
@@ -381,7 +380,7 @@ public class BookingControllerTest {
         long size = 0;
 
         when(bookingService.getAllBookingsByUser(anyLong(), anyString(), anyLong(), anyLong()))
-                .thenThrow(new NoSuchUserException("Error"));
+                .thenThrow(new NoSuchEntityException("Error"));
 
         mvc.perform(get("/bookings?state={state}&from={from}&size={size}", state, from, size)
                         .header("X-Sharer-User-Id", bookerId)
@@ -448,7 +447,7 @@ public class BookingControllerTest {
         long size = 0;
 
         when(bookingService.getAllBookingsAllItemsByOwner(anyLong(), anyString(), anyLong(), anyLong()))
-                .thenThrow(new NoSuchUserException("Error"));
+                .thenThrow(new NoSuchEntityException("Error"));
 
         mvc.perform(get("/bookings/owner?state={state}&from={from}&size={size}", state, from, size)
                         .header("X-Sharer-User-Id", ownerId)

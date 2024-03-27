@@ -9,6 +9,7 @@ import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.HasNotSavedException;
+import ru.practicum.shareit.exception.NoSuchEntityException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentMapper;
 import ru.practicum.shareit.item.exception.*;
@@ -16,10 +17,8 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.request.ItemRequestRepository;
-import ru.practicum.shareit.request.exception.NoSuchItemRequestException;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.exception.NoSuchUserException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -42,11 +41,11 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public ItemDto addItem(ItemDto itemDto, long userId) {
         User owner = userRepository.findById(userId).orElseThrow(() ->
-                new NoSuchUserException("Can't add item, no user found with id=" + userId));
+                new NoSuchEntityException("Can't add item, no user found with id=" + userId));
         Item item = ItemMapper.toItem(itemDto, owner);
         if (itemDto.getRequestId() != null) {
             ItemRequest itemRequest = itemRequestRepository.findById(itemDto.getRequestId()).orElseThrow(() ->
-                    new NoSuchItemRequestException("Can't add item, no item request with id = "
+                    new NoSuchEntityException("Can't add item, no item request with id = "
                             + itemDto.getRequestId()));
             item.setRequest(itemRequest);
         }
@@ -61,7 +60,7 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public ItemDto updateItemData(ItemDto itemDto, long itemId, long userId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() ->
-                new NoSuchItemException("Item with id = " + itemId + " doesn't exist."));
+                new NoSuchEntityException("Item with id = " + itemId + " doesn't exist."));
         if (item.getOwner().getId() != userId) {
             throw new UserNotOwnItemException("User with id = " + userId + " doesn't own item with id = " + itemId);
         }
@@ -84,9 +83,9 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto getItemById(long userId, long itemId) {
         User owner = userRepository.findById(userId).orElseThrow(() ->
-                new NoSuchUserException("There is no user with id = " + userId));
+                new NoSuchEntityException("There is no user with id = " + userId));
         Item item = itemRepository.findById(itemId).orElseThrow(() ->
-                new NoSuchItemException("There is no item with id = " + itemId));
+                new NoSuchEntityException("There is no item with id = " + itemId));
         ItemDto itemDto = ItemMapper.toItemDto(item);
         itemDto.setComments(CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(itemId)));
         if (userId != item.getOwner().getId()) {
@@ -110,7 +109,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getAllItemsByUserId(long userId, long from, long size) {
         User owner = userRepository.findById(userId).orElseThrow(() ->
-                new NoSuchUserException("There is no user with id = " + userId));
+                new NoSuchEntityException("There is no user with id = " + userId));
         PageRequest pageRequest = PageRequest.of((int) (from / size), (int) size);
         List<Item> items = itemRepository.findAllByOwnerId(userId, pageRequest);
         List<ItemDto> dtos = ItemMapper.toItemDto(items);
@@ -149,9 +148,9 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public CommentDto addComment(long userId, long itemId, CommentDto commentDto) {
         User author = userRepository.findById(userId).orElseThrow(() ->
-                new NoSuchUserException("There is no user with id = " + userId));
+                new NoSuchEntityException("There is no user with id = " + userId));
         Item item = itemRepository.findById(itemId).orElseThrow(() ->
-                new NoSuchItemException("There is no item with id = " + itemId));
+                new NoSuchEntityException("There is no item with id = " + itemId));
         Booking booking = bookingRepository.findFirstByBookerIdAndItemIdAndStatusIsAndEndIsBeforeOrderByEndDesc(
                 userId, itemId, Booking.Status.APPROVED, LocalDateTime.now()).orElseThrow(() ->
                 new NoFinishBookingForCommentException("No booking for comment."));
@@ -159,7 +158,7 @@ public class ItemServiceImpl implements ItemService {
         try {
             return CommentMapper.mapToCommentDto(commentRepository.save(comment));
         } catch (DataIntegrityViolationException e) {
-            throw new CommentHasNotSavedException("Comment hasn't been saved: " + comment);
+            throw new HasNotSavedException("Comment hasn't been saved: " + comment);
         }
     }
 
